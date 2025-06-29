@@ -23,20 +23,22 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
 }) => {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-6">
-      <Card variant="glass" padding="small" className="flex-1 flex flex-col">
+      <Card variant="glass" padding="medium" className="flex-1 flex flex-col">
         {/* Header - Fixed at top */}
-        <div className="flex-shrink-0 text-center mb-2">
+        <div className="flex-shrink-0 text-center mb-6">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
-          <h1 className="text-xl font-bold text-white">
+          <h1 className="text-xl font-bold text-white mb-3">
             Your Journey Begins!
           </h1>
+          <p className="text-white/80 text-sm leading-relaxed">
+            Genesis has learned about your unique personality and preferences. Here's what we discovered:
+          </p>
         </div>
 
         {/* Scrollable Content Area */}
-        
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-6">
           {personalityProfile && (
             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
               <h3 className="text-white font-semibold mb-3 flex items-center text-sm">
@@ -59,6 +61,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
                   <span className="font-medium">{Math.round(personalityProfile.confidence * 100)}%</span>
                 </div>
               </div>
+            </div>
           )}
 
           {ritualPreferences && (
@@ -127,6 +130,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
               </ul>
             </div>
           )}
+        </div>
 
         {/* Button - Fixed at bottom */}
         <div className="flex-shrink-0">
@@ -142,7 +146,6 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           </Button>
         </div>
       </Card>
-    </div>    
-  </div>
+    </div>
   );
 };
