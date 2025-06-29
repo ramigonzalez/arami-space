@@ -39,21 +39,21 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
   isLoading,
 }) => {
   return (
-    <Card variant="glass" padding="large" className="text-center">
-      <div className="space-y-6">
+    <Card variant="glass" padding="medium" className="text-center">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-4">
+          <h1 className="text-xl font-bold text-white mb-3">
             Welcome to Your Journey
           </h1>
-          <p className="text-white/80 text-lg leading-relaxed">
+          <p className="text-white/80 text-sm leading-relaxed">
             Let's discover your unique personality and create your perfect wellness ritual through a voice experience.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Name Input */}
           <div>
-            <label className="block text-white/90 font-medium mb-3 text-left">
+            <label className="block text-white/90 font-medium mb-2 text-left text-sm">
               What should I call you?
             </label>
             <Input
@@ -67,23 +67,23 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 
           {/* Language Selection */}
           <div>
-            <label className="block text-white/90 font-medium mb-3 text-left">
+            <label className="block text-white/90 font-medium mb-2 text-left text-sm">
               Preferred Language
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {LANGUAGE_OPTIONS.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => setLanguage(lang.code as Language)}
-                  className={`p-4 rounded-xl border transition-all duration-200 ${
+                  className={`p-3 rounded-xl border transition-all duration-200 ${
                     language === lang.code
                       ? 'border-primary-400 bg-primary-600/20'
                       : 'border-white/20 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className="text-2xl">{lang.flag}</span>
-                    <span className="text-white font-medium">{lang.name}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">{lang.flag}</span>
+                    <span className="text-white font-medium text-sm">{lang.name}</span>
                   </div>
                 </button>
               ))}
@@ -92,30 +92,31 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 
           {/* Gender/Voice Selection */}
           <div>
-            <label className="block text-white/90 font-medium mb-3 text-left">
+            <label className="block text-white/90 font-medium mb-2 text-left text-sm">
               Voice Preference
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {GENDER_OPTIONS.map((genderOption) => (
                 <button
                   key={genderOption.code}
                   onClick={() => setGender(genderOption.code)}
-                  className={`p-4 rounded-xl border transition-all duration-200 ${
+                  className={`p-3 rounded-xl border transition-all duration-200 ${
                     gender === genderOption.code
                       ? 'border-primary-400 bg-primary-600/20'
                       : 'border-white/20 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className="text-2xl">{genderOption.icon}</span>
-                    <span className="text-white font-medium">{genderOption.name}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">{genderOption.icon}</span>
+                    <span className="text-white font-medium text-sm">{genderOption.name}</span>
                   </div>
                 </button>
               ))}
             </div>
           </div>
         </div>
-        <div className="pt-4">
+        
+        <div className="pt-2">
           <Button
             onClick={onStartVoiceJourney}
             disabled={isLoading || !userName.trim()}
@@ -124,7 +125,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
             iconPosition="left"
             className="w-full"
             >
-            {isLoading ? 'Connecting to Genesis...' : 'Start Voice Onboarding '}
+            {isLoading ? 'Connecting to Genesis...' : 'Start Voice Onboarding'}
           </Button>
         </div>
       </div>
