@@ -16,14 +16,14 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
 
   return (
     <div className="flex flex-col space-y-4 h-96">
-      {/* Messages container - fixed height with internal scroll */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-        {displayMessages.length ? (
+              {displayMessages.length ? (
           <div className="text-center">
             <h3 className="text-white text-md font-semibold mb-2">Live chat with Genesis</h3>
           </div>
-        ) : (<></>)
-       }
+          ) : (<></>)
+        }
+      {/* Messages container - fixed height with internal scroll */}
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         {displayMessages.length === 0 ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
