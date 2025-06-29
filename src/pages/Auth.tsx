@@ -73,7 +73,11 @@ export const Auth: React.FC<AuthProps> = () => {
   const { user, profile, initialized, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, isOnboardingComplete } = useAuth();
+  
+  // Derive authentication and onboarding status from available data
+  const isAuthenticated = !!user;
+  const isOnboardingComplete = profile?.onboarding_completed || false;
+  
   const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
   const [authAction, setAuthAction] = useState<AuthAction>('signin');
   const [usePassword, setUsePassword] = useState(true);
