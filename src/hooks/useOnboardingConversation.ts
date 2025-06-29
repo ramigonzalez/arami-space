@@ -79,7 +79,6 @@ export const useOnboardingConversation = ({
     onConnect: () => {
       console.log("Connected to Genesis");
       setConversationActive(true);
-      addMessage('ai', "Hello! I'm Genesis, your AI guide. I'm here to help you discover your unique personality and set up your perfect wellness journey.");
     },
     onDisconnect: () => {
       console.log("Disconnected from Genesis");
