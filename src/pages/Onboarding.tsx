@@ -108,9 +108,9 @@ export const Onboarding: React.FC = () => {
           </div>
         </header>
 
-        {/* Main content */}
-        <main className="flex-1 px-4 pb-safe-bottom">
-          <div className="max-w-2xl mx-auto mr-2 ml-2">
+        {/* Main content - centered */}
+        <main className="flex-1 px-4 pb-safe-bottom flex items-center justify-center">
+          <div className="max-w-2xl w-full">
             {/* Welcome Step */}
             {currentStep === 'welcome' && (
               <WelcomeStep
