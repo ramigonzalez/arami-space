@@ -96,21 +96,21 @@ export const Onboarding: React.FC = () => {
       <div className="absolute inset-0 grain-texture opacity-[0.03] pointer-events-none" />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header with progress - optimized for iPhone 16 */}
-        <header className="px-4 pt-safe-top pb-2">
+        {/* Header with progress - more compact */}
+        <header className="px-4 pt-safe-top pb-1">
           <div className="max-w-md mx-auto">
             <ProgressIndicator
               currentStep={stepInfo.number}
               totalSteps={5}
               stepLabels={['Welcome', 'Discovery', 'Design', 'Voice', 'Complete']}
-              className="mb-3"
+              className="mb-2"
             />
           </div>
         </header>
 
-        {/* Main content - optimized for iPhone 16/16 Pro viewport */}
-        <main className="flex-1 px-4 pb-safe-bottom min-h-0">
-          <div className="max-w-md mx-auto h-full flex flex-col justify-center">
+        {/* Main content - optimized height distribution */}
+        <main className="flex-1 px-4 pb-safe-bottom overflow-hidden">
+          <div className="max-w-md mx-auto h-full flex flex-col">
             {/* Welcome Step */}
             {currentStep === 'welcome' && (
               <WelcomeStep
