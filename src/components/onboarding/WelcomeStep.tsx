@@ -75,7 +75,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
                 <button
                   key={lang.code}
                   onClick={() => setLanguage(lang.code as Language)}
-                  className={`p-3 rounded-xl border transition-all duration-200 ${
+                  className={`text-center p-3 rounded-xl border transition-all duration-200 ${
                     language === lang.code
                       ? 'border-primary-400 bg-primary-600/20'
                       : 'border-white/20 bg-white/5 hover:bg-white/10'
