@@ -2,26 +2,11 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { DatabaseService } from '../lib/database';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { ProgressIndicator } from '../components/onboarding/ProgressIndicator';
-import { ConversationInterface } from '../components/onboarding/ConversationInterface';
-import { VoiceControls } from '../components/onboarding/VoiceControls';
-import { 
-  CheckCircle, 
-  ArrowRight, 
-  User, 
-  Settings, 
-  Target, 
-  Mic,
-  Globe,
-  Volume2,
-  Sparkles,
-  Heart,
-  Brain
-} from 'lucide-react';
+import { WelcomeStep } from '../components/onboarding/WelcomeStep';
+import { AIDrivenSteps } from '../components/onboarding/AIDrivenSteps';
+import { CongratulationsStep } from '../components/onboarding/CongratulationsStep';
 import { useConversation } from '@11labs/react';
 
 // Types for onboarding steps and data
@@ -68,24 +53,12 @@ const VOICE_ID_MAP: Record<string, Record<string, string>> = {
   },
 };
 
-const LANGUAGE_OPTIONS = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'pt', name: 'Português', flag: '🇧🇷' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-];
-
-const GENDER_OPTIONS = [
-  { code: 'male', name: 'Male Voice', icon: '👨' },
-  { code: 'female', name: 'Female Voice', icon: '👩' },
-];
-
 export const Onboarding: React.FC = () => {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   // Step management
-  const [currentStep, setCurrentStep] = useState<Step>('emotional_discovery');
+  const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [loading, setLoading] = useState(false);
 
   // Welcome step data
@@ -392,258 +365,42 @@ export const Onboarding: React.FC = () => {
           <div className="max-w-2xl mx-auto">
             {/* Welcome Step */}
             {currentStep === 'welcome' && (
-              <Card variant="glass" padding="large" className="text-center">
-                <div className="space-y-8">
-                  <div>
-                    <div className="w-20 h-20 bg-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <User className="w-10 h-10 text-primary-400" />
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-4">
-                      Welcome to Your Journey
-                    </h1>
-                    <p className="text-white/80 text-lg leading-relaxed">
-                      I'm Genesis, your AI guide. Let's discover your unique personality and create your perfect wellness ritual.
-                    </p>
-                  </div>
-
-                  <div className="space-y-6">
-                    {/* Name Input */}
-                    <div>
-                      <label className="block text-white/90 font-medium mb-3 text-left">
-                        What should I call you?
-                      </label>
-                      <Input
-                        placeholder="Enter your name"
-                        value={userName}
-                        onChange={setUserName}
-                        icon={User}
-                        className="text-center"
-                      />
-                    </div>
-
-                    {/* Language Selection */}
-                    <div>
-                      <label className="block text-white/90 font-medium mb-3 text-left">
-                        Preferred Language
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {LANGUAGE_OPTIONS.map((lang) => (
-                          <button
-                            key={lang.code}
-                            onClick={() => setLanguage(lang.code)}
-                            className={`p-4 rounded-xl border transition-all duration-200 ${
-                              language === lang.code
-                                ? 'border-primary-400 bg-primary-600/20'
-                                : 'border-white/20 bg-white/5 hover:bg-white/10'
-                            }`}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <span className="text-2xl">{lang.flag}</span>
-                              <span className="text-white font-medium">{lang.name}</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Gender/Voice Selection */}
-                    <div>
-                      <label className="block text-white/90 font-medium mb-3 text-left">
-                        Voice Preference
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {GENDER_OPTIONS.map((genderOption) => (
-                          <button
-                            key={genderOption.code}
-                            onClick={() => setGender(genderOption.code)}
-                            className={`p-4 rounded-xl border transition-all duration-200 ${
-                              gender === genderOption.code
-                                ? 'border-primary-400 bg-primary-600/20'
-                                : 'border-white/20 bg-white/5 hover:bg-white/10'
-                            }`}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <span className="text-2xl">{genderOption.icon}</span>
-                              <span className="text-white font-medium">{genderOption.name}</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={startConversation}
-                    disabled={loading || !userName.trim()}
-                    size="large"
-                    icon={Mic}
-                    iconPosition="left"
-                    className="w-full"
-                  >
-                    {loading ? 'Connecting to Genesis...' : 'Start Voice Journey'}
-                  </Button>
-                </div>
-              </Card>
+              <WelcomeStep
+                userName={userName}
+                setUserName={setUserName}
+                language={language}
+                setLanguage={setLanguage}
+                gender={gender}
+                setGender={setGender}
+                onStartVoiceJourney={startConversation}
+                isLoading={loading}
+              />
             )}
 
             {/* AI-Driven Steps */}
             {(currentStep === 'emotional_discovery' || currentStep === 'ritual_design' || currentStep === 'voice_selection') && (
-              <div className="space-y-6">
-                {/* Step Info Card */}
-                <Card variant="glass" padding="medium" className="text-center">
-                  <div className="flex items-center justify-center space-x-4">
-                    {currentStep === 'emotional_discovery' && (
-                      <>
-                        <Brain className="w-8 h-8 text-accent-300" />
-                        <div>
-                          <h2 className="text-xl font-semibold text-white">Emotional Discovery</h2>
-                          <p className="text-white/70">Understanding your personality and emotional patterns</p>
-                        </div>
-                      </>
-                    )}
-                    {currentStep === 'ritual_design' && (
-                      <>
-                        <Settings className="w-8 h-8 text-accent-300" />
-                        <div>
-                          <h2 className="text-xl font-semibold text-white">Ritual Design</h2>
-                          <p className="text-white/70">Creating your personalized daily wellness ritual</p>
-                        </div>
-                      </>
-                    )}
-                    {currentStep === 'voice_selection' && (
-                      <>
-                        <Volume2 className="w-8 h-8 text-accent-300" />
-                        <div>
-                          <h2 className="text-xl font-semibold text-white">Voice Selection</h2>
-                          <p className="text-white/70">Choosing your perfect AI companion voice</p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Conversation Interface */}
-                <Card variant="glass" padding="medium">
-                  <ConversationInterface
-                    messages={messages}
-                    isListening={isListening}
-                    currentTranscript={currentTranscript}
-                    isAiSpeaking={isAiSpeaking}
-                  />
-                </Card>
-
-                {/* Voice Controls */}
-                <div className="flex justify-center">
-                  <VoiceControls
-                    isRecording={isListening}
-                    isProcessing={isAiSpeaking}
-                    audioLevel={audioLevel}
-                    onStartRecording={() => conversation.startSession}
-                    onStopRecording={() => conversation.endSession}
-                  />
-                </div>
-              </div>
+              <AIDrivenSteps
+                currentStep={currentStep as 'emotional_discovery' | 'ritual_design' | 'voice_selection'}
+                messages={messages}
+                isListening={isListening}
+                currentTranscript={currentTranscript}
+                isAiSpeaking={isAiSpeaking}
+                audioLevel={audioLevel}
+                onStartRecording={() => conversation.startSession}
+                onStopRecording={() => conversation.endSession}
+              />
             )}
 
             {/* Congratulations Step */}
             {currentStep === 'complete' && (
-              <Card variant="glass" padding="large" className="text-center">
-                <div className="space-y-8">
-                  <div>
-                    <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle className="w-10 h-10 text-green-400" />
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-4">
-                      Your Journey Begins!
-                    </h1>
-                    <p className="text-white/80 text-lg leading-relaxed">
-                      Genesis has learned about your unique personality and preferences. Here's what we discovered:
-                    </p>
-                  </div>
-
-                  {/* Summary of collected data */}
-                  <div className="space-y-6 text-left">
-                    {personalityProfile && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-white font-semibold mb-3 flex items-center">
-                          <Brain className="w-5 h-5 mr-2 text-accent-300" />
-                          Personality Profile
-                        </h3>
-                        <div className="space-y-2 text-white/80">
-                          <p><strong>DISC Type:</strong> {personalityProfile.disc}</p>
-                          {personalityProfile.enneagram && (
-                            <p><strong>Enneagram:</strong> Type {personalityProfile.enneagram}</p>
-                          )}
-                          <p><strong>Confidence:</strong> {Math.round(personalityProfile.confidence * 100)}%</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {ritualPreferences && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-white font-semibold mb-3 flex items-center">
-                          <Settings className="w-5 h-5 mr-2 text-accent-300" />
-                          Ritual Preferences
-                        </h3>
-                        <div className="space-y-2 text-white/80">
-                          <p><strong>Timing:</strong> {ritualPreferences.timing.replace('_', ' ')}</p>
-                          <p><strong>Duration:</strong> {ritualPreferences.duration.replace('_', ' ')}</p>
-                          <p><strong>Style:</strong> {ritualPreferences.style.replace('_', ' ')}</p>
-                          <p><strong>Voice:</strong> {ritualPreferences.voice_id.replace('_', ' ')}</p>
-                          <p><strong>Focus:</strong> {ritualPreferences.focus_area.replace('_', ' ')}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {knowledgeCategories.length > 0 && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-white font-semibold mb-3 flex items-center">
-                          <Heart className="w-5 h-5 mr-2 text-accent-300" />
-                          Emotional Focus Areas
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {knowledgeCategories.map((category, index) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 bg-accent-300/20 text-accent-300 rounded-full text-sm"
-                            >
-                              {category.replace('_', ' ')}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {primaryGoals.length > 0 && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-white font-semibold mb-3 flex items-center">
-                          <Target className="w-5 h-5 mr-2 text-accent-300" />
-                          Primary Goals
-                        </h3>
-                        <ul className="space-y-2 text-white/80">
-                          {primaryGoals.map((goal, index) => (
-                            <li key={index} className="flex items-start">
-                              <Sparkles className="w-4 h-4 mr-2 text-accent-300 mt-0.5 flex-shrink-0" />
-                              {goal}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={handleCompleteOnboarding}
-                    disabled={loading}
-                    size="large"
-                    icon={ArrowRight}
-                    iconPosition="right"
-                    className="w-full"
-                  >
-                    {loading ? 'Setting up your sanctuary...' : 'Enter Your Sanctuary'}
-                  </Button>
-                </div>
-              </Card>
+              <CongratulationsStep
+                personalityProfile={personalityProfile}
+                ritualPreferences={ritualPreferences}
+                knowledgeCategories={knowledgeCategories}
+                primaryGoals={primaryGoals}
+                onCompleteOnboarding={handleCompleteOnboarding}
+                isLoading={loading}
+              />
             )}
           </div>
         </main>
