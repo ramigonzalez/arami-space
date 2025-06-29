@@ -76,16 +76,6 @@ export const Onboarding: React.FC = () => {
       'Create consistent daily wellness habits',
       'Improve stress management techniques'
     ]);
-    
-    // Add test messages
-    const testMessages: Message[] = [
-      { id: '1', type: 'ai', content: "Hello! I'm Genesis, your onboarding companion. I'm here to learn about your unique personality and help create the perfect daily ritual for you. Let's start with understanding what brings you here today - what are you hoping to achieve through emotional wellness?", timestamp: new Date(Date.now() - 300000) },
-      { id: '2', type: 'user', content: "I've been feeling overwhelmed lately and want to develop better emotional awareness and stress management skills.", timestamp: new Date(Date.now() - 240000) },
-      { id: '3', type: 'ai', content: "That's a wonderful goal, and you're taking an important step by recognizing that need. Emotional awareness is truly the foundation of personal growth. When you think about your daily life, what situations tend to trigger that feeling of being overwhelmed?", timestamp: new Date(Date.now() - 180000) },
-      { id: '4', type: 'user', content: "Usually work deadlines and trying to balance everything - work, relationships, personal time. I feel like I'm always rushing.", timestamp: new Date(Date.now() - 120000) },
-      { id: '5', type: 'ai', content: "I can really hear the weight of that constant rushing feeling. It sounds like you're juggling multiple important areas of your life, which shows how much you care about doing well in each area. That caring nature tells me something beautiful about your personality. When you do find moments of calm, what helps you feel most centered?", timestamp: new Date(Date.now() - 60000) },
-    ];
-    setMessages(testMessages);
   }, []);
 
   const handleSignOut = async () => {
