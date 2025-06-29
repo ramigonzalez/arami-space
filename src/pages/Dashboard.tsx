@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { DatabaseService } from '../lib/database';
-import { Layout } from '../components/layout/Layout';
+import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
