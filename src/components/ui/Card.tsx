@@ -25,6 +25,7 @@ export const Card: React.FC<CardProps> = ({
   
   const paddingClasses = {
     none: '',
+    xsmall: 'p-2',
     small: 'p-4',
     medium: 'p-6',
     large: 'p-8',
