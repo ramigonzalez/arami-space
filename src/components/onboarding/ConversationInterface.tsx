@@ -7,11 +7,12 @@ import { testMessages } from '../../data/onboardingMessages';
 
 interface ConversationInterfaceProps {
   messages: Message[];
+  isTest: boolean;
 }
 
-export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages }) => {
+export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages, isTest }) => {
   // Use test messages if no real messages are provided
-  const displayMessages = messages.length > 0 ? messages : testMessages;
+  const displayMessages = !isTest ? messages : testMessages;
 
   return (
     <div className="flex flex-col space-y-4 h-96">
