@@ -36,11 +36,11 @@ Arami is an AI-powered emotional wellness companion that provides personalized d
 - [x] Voice selection and customization
 - [x] Congratulations step with summary
 - [x] Data persistence to database
-- [ ] **CURRENT TASK**: UI/UX improvements for conversation interface
+- [x] **COMPLETED**: UI/UX improvements for conversation interface
   - [x] Fixed-height containers with internal scrolling
   - [x] Improved message bubble layout and alignment
-  - [ ] Voice controls optimization for mobile
-  - [ ] Loading states and error handling improvements
+- [ ] **CURRENT TASK**: Voice controls optimization for mobile
+- [ ] **CURRENT TASK**: Loading states and error handling improvements
 - [ ] Testing and refinement of onboarding flow
 - [ ] Edge case handling and validation
 
@@ -90,15 +90,20 @@ Arami is an AI-powered emotional wellness companion that provides personalized d
 ## Current Sprint Focus
 
 ### Active Tasks
-1. **Conversation Interface Improvements** (In Progress)
-   - Implementing fixed-box layout principles
-   - Optimizing message display and scrolling behavior
-   - Enhancing mobile user experience
+1. **Voice Controls Mobile Optimization** (In Progress)
+   - Enhancing VoiceControls component for better mobile interaction
+   - Improving audio level visualization and feedback
+   - Optimizing touch targets and gesture handling
+
+2. **Loading States and Error Handling** (In Progress)
+   - Implementing comprehensive error boundaries
+   - Adding loading indicators for voice processing
+   - Enhancing user feedback during conversation states
 
 ### Next Tasks
-1. Voice controls mobile optimization
-2. Loading states and error handling
-3. Onboarding flow testing and refinement
+1. Onboarding flow testing and refinement
+2. Edge case handling and validation
+3. Performance optimization for voice interactions
 
 ## Technical Decisions
 
@@ -114,12 +119,20 @@ Arami is an AI-powered emotional wellness companion that provides personalized d
 - **Fixed-box layouts**: Containers with internal scrolling
 - **Accessibility**: WCAG 2.1 AA compliance
 - **Performance**: 60fps animations, optimized for mobile networks
+- **Web-first approach**: Responsive web design without PWA constraints
 
 ### Database Strategy
 - Row Level Security (RLS) enabled on all user tables
 - Edge functions for complex business logic
 - Comprehensive indexing for performance
 - Proper foreign key relationships and constraints
+
+### Project Scope Changes
+- **PWA Features Removed**: Simplified to responsive web application approach
+  - Removed offline capability requirements
+  - Removed app-like navigation constraints
+  - Removed home screen installation features
+  - Focus on mobile-first responsive design
 
 ## Risk Management
 

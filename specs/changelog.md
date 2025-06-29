@@ -5,6 +5,24 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-01-25
+
+### Removed
+- **PWA Features**: Removed Progressive Web App functionality from project scope
+  - Removed offline capability requirements
+  - Removed app-like navigation constraints
+  - Removed home screen installation features
+  - Simplified to responsive web application approach
+
+### Changed
+- **Product Requirements Document**: Updated PRD to reflect web-first approach instead of PWA
+- **Technical Architecture**: Simplified frontend stack without PWA constraints
+- **Project Scope**: Focused on responsive web design with mobile-first principles
+
+### Technical
+- **Architecture Simplification**: Removed PWA-specific technical requirements
+- **Documentation Updates**: Updated all project documentation to reflect scope change
+
 ## [0.2.0] - 2025-01-25
 
 ### Added

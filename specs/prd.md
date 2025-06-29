@@ -1,15 +1,15 @@
 # 📋 **Product Requirements Document (PRD) - Arami Voice AI Companion**
 
-**Version**: 1.0  
+**Version**: 1.1  
 **Target Release**: MVP Sprint  
-**Platform**: Web (Mobile-First PWA) - iPhone 16/16 Pro Optimized  
+**Platform**: Web (Mobile-First) - iPhone 16/16 Pro Optimized  
 **Tech Stack**: Vite + React + TypeScript + Tailwind CSS
 
 ---
 
 ## 1. Executive Summary
 
-Arami is a voice-first emotional AI companion that provides personalized daily rituals through conversational AI. Users complete a 3-5 minute voice onboarding with Genesis (our onboarding agent), receive personalized daily sessions, and track emotional growth through AI-generated insights. The application is designed as a Progressive Web App (PWA) optimized for iPhone 16/16 Pro with native mobile app appearance and functionality.
+Arami is a voice-first emotional AI companion that provides personalized daily rituals through conversational AI. Users complete a 3-5 minute voice onboarding with Genesis (our onboarding agent), receive personalized daily sessions, and track emotional growth through AI-generated insights. The application is designed as a responsive web application optimized for iPhone 16/16 Pro with mobile-first design principles.
 
 ---
 
@@ -19,7 +19,7 @@ Arami is a voice-first emotional AI companion that provides personalized daily r
 - **Framework**: Vite + React 18 + TypeScript
 - **Styling**: Tailwind CSS with mobile-first approach
 - **Target Device**: iPhone 16/16 Pro (393×852px @ 3x density)
-- **PWA Features**: Offline capability, app-like navigation, home screen installation
+- **Responsive Design**: Mobile-first with progressive enhancement
 - **State Management**: Zustand for client state
 - **Voice Integration**: ElevenLabs React SDK
 
@@ -279,9 +279,8 @@ interface SessionOutput {
 ### **Phase 1: Landing Page & Foundation (2 weeks)**
 1. 🔄 Landing page with Arami design system
 2. 🔄 Mobile-first responsive design
-3. 🔄 PWA configuration
-4. 🔄 Basic routing structure
-5. 🔄 Design system components
+3. 🔄 Basic routing structure
+4. 🔄 Design system components
 
 ### **Phase 2: Authentication & Onboarding (2 weeks)**
 1. 🔄 Supabase database setup + edge functions
@@ -331,4 +330,4 @@ module.exports = {
 }
 ```
 
-This PRD provides a comprehensive implementation roadmap for Arami optimized for iPhone 16/16 Pro with native mobile app experience using Vite + Tailwind CSS! 🚀
+This PRD provides a comprehensive implementation roadmap for Arami optimized for iPhone 16/16 Pro with responsive web design using Vite + Tailwind CSS! 🚀
