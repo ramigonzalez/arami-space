@@ -25,7 +25,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Header */}
       <header className="relative z-10 bg-surface-900/80 backdrop-blur-xl border-b border-accent-300/20 sticky top-0">
-        <div className="w-full px-4 py-3">
+        <div className="w-full px-4 py-1">
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center">
