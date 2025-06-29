@@ -59,7 +59,6 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
                   <span className="font-medium">{Math.round(personalityProfile.confidence * 100)}%</span>
                 </div>
               </div>
-            
           )}
 
           {ritualPreferences && (
@@ -142,7 +141,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           >
             {isLoading ? 'Setting up your sanctuary...' : 'Enter Your Sanctuary'}
           </Button>
-       
+      </div>
       </Card>
      </div>
     </div>
