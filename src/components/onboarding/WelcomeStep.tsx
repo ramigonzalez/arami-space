@@ -2,7 +2,8 @@ import React from 'react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { User, Mic, Globe, Volume2 } from 'lucide-react';
+import { User, Mic } from 'lucide-react';
+import { Language } from '@11labs/react';
 
 const LANGUAGE_OPTIONS = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -19,8 +20,8 @@ const GENDER_OPTIONS = [
 interface WelcomeStepProps {
   userName: string;
   setUserName: (name: string) => void;
-  language: string;
-  setLanguage: (lang: string) => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
   gender: string;
   setGender: (gender: string) => void;
   onStartVoiceJourney: () => Promise<void>;
@@ -39,20 +40,17 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 }) => {
   return (
     <Card variant="glass" padding="large" className="text-center">
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div>
-          <div className="w-20 h-20 bg-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <User className="w-10 h-10 text-primary-400" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-4">
+          <h1 className="text-2xl font-bold text-white mb-4">
             Welcome to Your Journey
           </h1>
           <p className="text-white/80 text-lg leading-relaxed">
-            I'm Genesis, your AI guide. Let's discover your unique personality and create your perfect wellness ritual.
+            Let's discover your unique personality and create your perfect wellness ritual through a voice experience.
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Name Input */}
           <div>
             <label className="block text-white/90 font-medium mb-3 text-left">
@@ -76,7 +74,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
               {LANGUAGE_OPTIONS.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => setLanguage(lang.code)}
+                  onClick={() => setLanguage(lang.code as Language)}
                   className={`p-4 rounded-xl border transition-all duration-200 ${
                     language === lang.code
                       ? 'border-primary-400 bg-primary-600/20'
@@ -117,17 +115,18 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
             </div>
           </div>
         </div>
-
-        <Button
-          onClick={onStartVoiceJourney}
-          disabled={isLoading || !userName.trim()}
-          size="large"
-          icon={Mic}
-          iconPosition="left"
-          className="w-full"
-        >
-          {isLoading ? 'Connecting to Genesis...' : 'Start Voice Journey'}
-        </Button>
+        <div className="pt-4">
+          <Button
+            onClick={onStartVoiceJourney}
+            disabled={isLoading || !userName.trim()}
+            size="large"
+            icon={Mic}
+            iconPosition="left"
+            className="w-full"
+            >
+            {isLoading ? 'Connecting to Genesis...' : 'Start Voice Onboarding '}
+          </Button>
+        </div>
       </div>
     </Card>
   );

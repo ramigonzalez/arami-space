@@ -61,16 +61,6 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           })}
         </div>
       </div>
-
-      {/* Progress text */}
-      <div className="flex justify-between items-center text-sm">
-        <span className="text-white/80">
-          Step {currentStep} of {totalSteps}
-        </span>
-        <span className="text-white/60">
-          {Math.round(progress)}% complete
-        </span>
-      </div>
     </div>
   );
 };

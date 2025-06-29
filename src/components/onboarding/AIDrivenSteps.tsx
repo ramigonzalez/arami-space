@@ -16,23 +16,11 @@ interface Message {
 interface AIDrivenStepsProps {
   currentStep: Step;
   messages: Message[];
-  isListening: boolean;
-  currentTranscript: string;
-  isAiSpeaking: boolean;
-  audioLevel: number;
-  onStartRecording: () => void;
-  onStopRecording: () => void;
 }
 
 export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
   currentStep,
   messages,
-  isListening,
-  currentTranscript,
-  isAiSpeaking,
-  audioLevel,
-  onStartRecording,
-  onStopRecording,
 }) => {
   const getStepInfo = () => {
     switch (currentStep) {
@@ -88,24 +76,8 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
 
       {/* Conversation Interface */}
       <Card variant="glass" padding="medium" className="flex-1 overflow-hidden">
-        <ConversationInterface
-          messages={messages}
-          isListening={isListening}
-          currentTranscript={currentTranscript}
-          isAiSpeaking={isAiSpeaking}
-        />
+        <ConversationInterface messages={messages} />
       </Card>
-
-      {/* Voice Controls */}
-      <div className="flex justify-center flex-shrink-0">
-        <VoiceControls
-          isRecording={isListening}
-          isProcessing={isAiSpeaking}
-          audioLevel={audioLevel}
-          onStartRecording={onStartRecording}
-          onStopRecording={onStopRecording}
-        />
-      </div>
 
     </div>
   );

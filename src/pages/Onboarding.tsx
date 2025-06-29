@@ -2,15 +2,15 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { DatabaseService } from '../lib/database';
-import { Badge } from '../components/ui/Badge';
 import { ProgressIndicator } from '../components/onboarding/ProgressIndicator';
 import { WelcomeStep } from '../components/onboarding/WelcomeStep';
 import { AIDrivenSteps } from '../components/onboarding/AIDrivenSteps';
 import { CongratulationsStep } from '../components/onboarding/CongratulationsStep';
-import { useConversation } from '@11labs/react';
+import { Language, useConversation } from '@11labs/react';
 
 // Types for onboarding steps and data
 type Step = 'welcome' | 'emotional_discovery' | 'ritual_design' | 'voice_selection' | 'complete';
+type MessageType = 'user' | 'ai';
 
 interface PersonalityProfile {
   disc: 'D' | 'I' | 'S' | 'C';
@@ -26,9 +26,10 @@ interface RitualPreferences {
   focus_area: 'stress_management' | 'goal_achievement' | 'relationships' | 'self_worth' | 'emotional_regulation';
 }
 
+
 interface Message {
   id: string;
-  type: 'user' | 'ai';
+  type: MessageType;
   content: string;
   timestamp: Date;
 }
@@ -58,12 +59,12 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
 
   // Step management
-  const [currentStep, setCurrentStep] = useState<Step>('welcome');
+  const [currentStep, setCurrentStep] = useState<Step>('emotional_discovery');
   const [loading, setLoading] = useState(false);
 
   // Welcome step data
   const [userName, setUserName] = useState('');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState<Language>('en');
   const [gender, setGender] = useState('female');
 
   // AI collected data
@@ -74,10 +75,6 @@ export const Onboarding: React.FC = () => {
 
   // Conversation state
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentTranscript, setCurrentTranscript] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
-  const [audioLevel, setAudioLevel] = useState(0);
 
   // Get signed URL for ElevenLabs conversation
   const getSignedUrl = async (): Promise<string> => {
@@ -110,12 +107,10 @@ export const Onboarding: React.FC = () => {
     },
     onDisconnect: () => {
       console.log("Disconnected from Genesis");
-      setIsAiSpeaking(false);
-      setIsListening(false);
     },
     onMessage: (props: { message: string; source: string }) => {
       console.log("Message:", props.message, "Source:", props.source);
-      addMessage(props.source, props.message);
+      addMessage(props.source as MessageType, props.message);
     },
     onError: (message: string) => {
       console.error("Conversation Error:", message);
@@ -136,7 +131,7 @@ export const Onboarding: React.FC = () => {
   }, []);
 
   // Helper function to add messages
-  const addMessage = (type: 'user' | 'ai', content: string) => {
+  const addMessage = (type: MessageType, content: string) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       type,
@@ -340,7 +335,7 @@ export const Onboarding: React.FC = () => {
       
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header with progress */}
-        <header className="px-4 pt-safe-top pb-4">
+        <header className="px-4 pt-safe-top">
           <div className="max-w-2xl mx-auto">
             <ProgressIndicator
               currentStep={stepInfo.number}
@@ -348,21 +343,12 @@ export const Onboarding: React.FC = () => {
               stepLabels={['Welcome', 'Discovery', 'Design', 'Voice', 'Complete']}
               className="mb-6"
             />
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Badge size="medium" />
-                <span className="ml-3 text-white font-semibold">Genesis Onboarding</span>
-              </div>
-              <p className="text-white/70 text-sm">
-                Step {stepInfo.number} of 5 • {stepInfo.label}
-              </p>
-            </div>
           </div>
         </header>
 
         {/* Main content */}
         <main className="flex-1 px-4 pb-safe-bottom">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto mr-2 ml-2">
             {/* Welcome Step */}
             {currentStep === 'welcome' && (
               <WelcomeStep
@@ -382,12 +368,6 @@ export const Onboarding: React.FC = () => {
               <AIDrivenSteps
                 currentStep={currentStep as 'emotional_discovery' | 'ritual_design' | 'voice_selection'}
                 messages={messages}
-                isListening={isListening}
-                currentTranscript={currentTranscript}
-                isAiSpeaking={isAiSpeaking}
-                audioLevel={audioLevel}
-                onStartRecording={() => conversation.startSession}
-                onStopRecording={() => conversation.endSession}
               />
             )}
 

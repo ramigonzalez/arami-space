@@ -12,17 +12,9 @@ interface Message {
 
 interface ConversationInterfaceProps {
   messages: Message[];
-  isListening: boolean;
-  currentTranscript: string;
-  isAiSpeaking: boolean;
 }
 
-export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
-  messages,
-  isListening,
-  currentTranscript,
-  isAiSpeaking,
-}) => {
+export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages }) => {
   return (
     <div className="flex flex-col space-y-4 h-full">
       {/* Messages container */}
@@ -41,40 +33,6 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
           messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))
-        )}
-
-        {/* Current transcript preview */}
-        {isListening && currentTranscript && (
-          <div className="flex items-start space-x-3">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="w-4 h-4 text-white" />
-            </div>
-            <Card variant="glass" padding="small" className="flex-1 border-primary-400/30">
-              <p className="text-white/90 text-sm italic">
-                {currentTranscript}
-                <span className="animate-pulse">|</span>
-              </p>
-            </Card>
-          </div>
-        )}
-
-        {/* AI speaking indicator */}
-        {isAiSpeaking && (
-          <div className="flex items-start space-x-3">
-            <div className="w-8 h-8 bg-accent-300 rounded-full flex items-center justify-center flex-shrink-0">
-              <Bot className="w-4 h-4 text-white" />
-            </div>
-            <Card variant="glass" padding="small" className="flex-1">
-              <div className="flex items-center space-x-2">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-accent-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-accent-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-accent-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-                <span className="text-white/70 text-sm">Genesis is speaking...</span>
-              </div>
-            </Card>
-          </div>
         )}
       </div>
     </div>
