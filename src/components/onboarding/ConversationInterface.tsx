@@ -19,15 +19,15 @@ interface ConversationInterfaceProps {
 const testMessages: Message[] = [
   { id: '1', type: 'ai' as MessageType, content: "slkdfjsdkljdfs lksdfjsdlkjfsdkljf lksdfjlksdjlsdjkf lkjsdflkdfjslfksdj", timestamp: new Date() },
   { id: '2', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
-  { id: '3', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
+  { id: '3', type: 'ai' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
   { id: '4', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
-  { id: '5', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
+  { id: '5', type: 'ai' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
   { id: '6', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
-  { id: '7', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
+  { id: '7', type: 'ai' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
   { id: '8', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
-  { id: '9', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
+  { id: '9', type: 'ai' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
   { id: '10', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
-  { id: '11', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() }
+  { id: '11', type: 'ai' as MessageType, content: "THIS MESSAGE MUST BE SHOWED FIRST", timestamp: new Date() }
 ]
 export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages }) => {
   return (
@@ -37,7 +37,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
         <div className="text-center">
           <h3 className="text-white text-lg font-semibold mb-5">Live chat with Genesis</h3>
         </div>
-        {testMessages.length === 0 ? (
+        {messages.length === 0 ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Badge size="medium" />
@@ -48,7 +48,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
             </p>
           </div>
         ) : (
-          [...testMessages].reverse().map((message) => (
+          [...messages].reverse().map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))
         )}
