@@ -67,7 +67,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
           {/* Step Information */}
           <div>
             <h2 className="text-xl font-semibold text-white mb-2">{stepInfo.title}</h2>
-            <p className="text-white/70">{stepInfo.description}</p>
+            <p className="text-white/70 text-md">{stepInfo.description}</p>
           </div>
 
           {/* End Conversation Button */}
