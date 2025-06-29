@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth';
 import { DatabaseService } from '../lib/database';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Home, Calendar, Target, Settings, Play, TrendingUp, LogOut } from 'lucide-react';
 
