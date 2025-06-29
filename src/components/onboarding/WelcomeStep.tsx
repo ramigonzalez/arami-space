@@ -67,7 +67,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 
           {/* Language Selection */}
           <div>
-            <label className="block text-white/90 font-medium mb-2 text-left text-sm">
+            <label className="block text-white/90 font-medium mb-2 text-left text-sm pt-4">
               Preferred Language
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -81,7 +81,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
                       : 'border-white/20 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-2 text-center">
+                  <div className="flex items-center space-x-2">
                     <span className="text-lg">{lang.flag}</span>
                     <span className="text-white font-medium text-sm">{lang.name}</span>
                   </div>
