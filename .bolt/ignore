@@ -12,7 +12,6 @@ index.html
 package-lock.json
 package.json
 postcss.config.js
-public/manifest.json
 specs/api-documentation.md
 specs/arami-design-system.md
 specs/backend.md
@@ -67,5 +66,4 @@ tsconfig.app.json
 tsconfig.json
 tsconfig.node.json
 vite.config.ts
-vite.config.ts.timestamp-1751132277449-33320e077b7698.mjs
 # ==== BOLT-ASSISTANT AUTO-GENERATED END ====
