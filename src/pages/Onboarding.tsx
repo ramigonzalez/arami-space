@@ -245,7 +245,7 @@ export const Onboarding: React.FC = () => {
             <AIDrivenSteps
               currentStep={currentStep}
               messages={messages}
-              onEndConversation={handleEndConversation}
+              onEndConversation={endConversation}
               conversationActive={conversationActive}
               isLoading={loading}
             />
