@@ -12,7 +12,7 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   
   // Step management
-  const [currentStep, setCurrentStep] = useState<Step>('welcome');
+  const [currentStep, setCurrentStep] = useState<Step>('emotional_discovery');
   const [loading, setLoading] = useState(false);
 
   // Welcome step data
