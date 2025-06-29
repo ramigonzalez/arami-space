@@ -67,9 +67,9 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
   const IconComponent = stepInfo.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full space-y-6">
       {/* Step Info Card with Integrated Animation */}
-      <Card variant="glass" padding="large" className="text-center">
+      <Card variant="glass" padding="large" className="text-center flex-shrink-0">
         <div className="space-y-6">
           {/* Breathing Animation with Icon */}
           <div className="flex items-center justify-center">
@@ -87,7 +87,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
       </Card>
 
       {/* Conversation Interface */}
-      <Card variant="glass" padding="medium">
+      <Card variant="glass" padding="medium" className="flex-1 overflow-hidden">
         <ConversationInterface
           messages={messages}
           isListening={isListening}
@@ -97,7 +97,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
       </Card>
 
       {/* Voice Controls */}
-      <div className="flex justify-center">
+      <div className="flex justify-center flex-shrink-0">
         <VoiceControls
           isRecording={isListening}
           isProcessing={isAiSpeaking}
@@ -106,6 +106,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
           onStopRecording={onStopRecording}
         />
       </div>
+
     </div>
   );
 };

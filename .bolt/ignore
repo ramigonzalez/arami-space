@@ -6,7 +6,6 @@
 .env
 .gitignore
 README.md
-dev-dist/registerSW.js
 eslint.config.js
 index.html
 package-lock.json
@@ -53,7 +52,7 @@ src/main.tsx
 src/pages/Auth.tsx
 src/pages/Dashboard.tsx
 src/pages/Landing.tsx
-src/pages/Onboarding.tsx
+# src/pages/Onboarding.tsx
 src/vite-env.d.ts
 supabase/functions/_shared/cors.ts
 supabase/functions/auth-magic-link/index.ts
