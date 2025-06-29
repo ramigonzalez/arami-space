@@ -23,7 +23,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
 }) => {
   return (
     <div className="h-full flex flex-col">
-      <Card variant="glass" padding="medium" className="flex-1 flex flex-col">
+      <Card variant="glass" padding="medium" className="flex-1 flex flex-col min-h-0">
         {/* Header - Fixed at top */}
         <div className="flex-shrink-0 text-center mb-6">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -38,7 +38,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-6">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-6 min-h-0">
           {personalityProfile && (
             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
               <h3 className="text-white font-semibold mb-3 flex items-center text-sm">
