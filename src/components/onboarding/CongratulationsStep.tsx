@@ -59,7 +59,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
                   <span className="font-medium">{Math.round(personalityProfile.confidence * 100)}%</span>
                 </div>
               </div>
-            </div>
+            
           )}
 
           {ritualPreferences && (
