@@ -96,16 +96,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
         />
       </Card>
 
-      {/* Voice Controls */}
-      <div className="flex justify-center">
-        <VoiceControls
-          isRecording={isListening}
-          isProcessing={isAiSpeaking}
-          audioLevel={audioLevel}
-          onStartRecording={onStartRecording}
-          onStopRecording={onStopRecording}
-        />
-      </div>
+
     </div>
   );
 };
