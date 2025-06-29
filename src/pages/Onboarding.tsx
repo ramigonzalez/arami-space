@@ -266,3 +266,5 @@ export const Onboarding: React.FC = () => {
     </div>
   );
 };
+
+export default Onboarding;
