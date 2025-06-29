@@ -205,15 +205,6 @@ export const useOnboardingConversation = ({
     }
   }, [conversation, userName, language, gender, onPersonalityProfileUpdate, onRitualPreferencesUpdate, onKnowledgeCategoriesUpdate, onPrimaryGoalsUpdate, onStepChange, onCompleteOnboarding]);
 
-  const stopConversation = useCallback(async () => {
-    try {
-      setIsListening(false);
-      // The conversation continues but stops listening
-    } catch (error) {
-      console.error('Error stopping conversation:', error);
-    }
-  }, []);
-
   const endConversation = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -229,14 +220,6 @@ export const useOnboardingConversation = ({
     }
   }, [conversation]);
 
-  const resetConversation = useCallback(() => {
-    setMessages([]);
-    setTranscript('');
-    setAgentResponse('');
-    setIsListening(false);
-    setConversationActive(false);
-  }, []);
-
   return {
     // State
     messages,
@@ -249,7 +232,6 @@ export const useOnboardingConversation = ({
     // Actions
     addMessage,
     startConversation,
-    stopConversation,
     endConversation,
     setTranscript,
     setAgentResponse,
