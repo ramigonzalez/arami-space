@@ -66,7 +66,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.type === 'user';
   
   return (
-    <div className={`flex items-start space-x-3 ${isUser ? 'flex-row' : 'flex-row'}`}>
+    <div className={`
+      flex items-start space-x-3 
+      ${isUser ? 'flex-row-reverse space-x-reverse justify-start' : 'flex-row justify-start'}
+    `}>
       {/* Avatar */}
       <div className={`
         w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
@@ -84,11 +87,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         variant="glass" 
         padding="small" 
         className={`
-          flex-1 max-w-[80%]
+          flex-1 max-w-[75%]
           ${isUser ? 'border-primary-400/30' : 'border-accent-300/30'}
         `}
       >
-        <p className="text-white/90 text-sm leading-relaxed">
+        <p className="text-white/90 text-sm leading-relaxed break-words">
           {message.content}
         </p>
         <div className="mt-2 text-xs text-white/50">
