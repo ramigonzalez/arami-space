@@ -29,13 +29,13 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
-src/components/onboarding/AIDrivenSteps.tsx
-src/components/onboarding/CongratulationsStep.tsx
+# src/components/onboarding/AIDrivenSteps.tsx
+# src/components/onboarding/CongratulationsStep.tsx
 # src/components/onboarding/ConversationInterface.tsx
 src/components/onboarding/ProgressIndicator.tsx
 src/components/onboarding/VoiceControls.tsx
 src/components/onboarding/VoiceSelector.tsx
-src/components/onboarding/WelcomeStep.tsx
+# src/components/onboarding/WelcomeStep.tsx
 src/components/ui/Badge.tsx
 src/components/ui/Button.tsx
 src/components/ui/Card.tsx
