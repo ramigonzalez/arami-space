@@ -76,6 +76,7 @@ export class DatabaseService {
   // Onboarding Management
   static async createOnboardingProfile(onboardingData: Partial<OnboardingProfile>): Promise<DatabaseResponse<OnboardingProfile>> {
     try {
+      console.log("createOnboardingProfile", JSON.stringify(onboardingData))
       const { data, error } = await supabase
         .from('onboarding_profiles')
         .insert(onboardingData)
