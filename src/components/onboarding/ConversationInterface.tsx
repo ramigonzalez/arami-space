@@ -14,8 +14,8 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
   const displayMessages = messages.length > 0 ? messages : testMessages;
 
   return (
-    <div className="flex flex-col space-y-4 h-full">
-      {/* Messages container - now uses flex-1 for dynamic height */}
+    <div className="flex flex-col space-y-4 h-96">
+      {/* Messages container - fixed height with internal scroll */}
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         <div className="text-center">
           <h3 className="text-white text-lg font-semibold mb-5">Live chat with Genesis</h3>
