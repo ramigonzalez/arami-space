@@ -177,3 +177,5 @@ const TabButton: React.FC<TabButtonProps> = ({ icon: Icon, label, active = false
     </button>
   );
 };
+
+export default Dashboard;
