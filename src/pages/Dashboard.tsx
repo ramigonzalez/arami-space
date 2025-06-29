@@ -1,186 +1,282 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { DatabaseService } from '../lib/database';
-import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
-import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
-import { Home, Calendar, Target, Settings, Play, TrendingUp, LogOut } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+import { 
+  Calendar, 
+  Target, 
+  Award, 
+  Flame, 
+  MessageCircle, 
+  Settings,
+  TrendingUp,
+  Clock,
+  Heart,
+  Brain,
+  Sparkles,
+  Play
+} from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
-interface DashboardProps {
-  // Future props can be added here
+interface DashboardData {
+  full_name: string;
+  language: string;
+  onboarding_completed: boolean;
+  disc_type: string | null;
+  enneagram_type: number | null;
+  timing: string | null;
+  voice_id: string | null;
+  daily_streak: number;
+  total_virtues: number;
+  sessions_this_week: number;
+  active_goals: number;
 }
 
-export const Dashboard: React.FC<DashboardProps> = () => {
-  const { user, profile, signOut } = useAuth();
-  const [dashboardData, setDashboardData] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+export const Dashboard: React.FC = () => {
+  const { user } = useAuth();
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    const loadDashboardData = async () => {
+  useEffect(() => {
+    const fetchDashboardData = async () => {
       if (!user) return;
 
       try {
-        const result = await DatabaseService.getUserDashboard(user.id);
-        if (result.success) {
-          setDashboardData(result.data);
+        const { data, error } = await supabase
+          .from('user_dashboard')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching dashboard data:', error);
+          return;
         }
+
+        setDashboardData(data);
       } catch (error) {
-        console.error('Error loading dashboard:', error);
+        console.error('Error:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadDashboardData();
+    fetchDashboardData();
   }, [user]);
 
-  const handleSignOut = async () => {
-    const result = await signOut();
-    if (!result.success) {
-      console.error('Sign out error:', result.error);
-    }
-  };
-
-  const streak = 7;
-  const virtues = ['Clarity', 'Courage', 'Compassion'];
-  const recentInsights = [
-    'You show strong leadership qualities when discussing team challenges',
-    'Your communication style reflects high emotional intelligence',
-    'Setting boundaries seems to be an area of growth for you'
-  ];
-
   if (loading) {
-    return <Layout><div className="min-h-screen flex items-center justify-center">
-      <div className="text-white">Loading your dashboard...</div>
-    </div></Layout>;
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-300"></div>
+        </div>
+      </Layout>
+    );
   }
 
-  return (
-    <Layout>
-      <div className="min-h-screen pb-safe-bottom">
-        {/* Header */}
-        <header className="px-4 pt-safe-top pb-4 bg-gradient-to-r from-primary-600 to-purple-600">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                Good morning, {profile?.full_name?.split(' ')[0] || 'there'}
-              </h1>
-              <p className="text-white/80 text-sm">Ready for today's ritual?</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button onClick={handleSignOut} className="p-2 text-white/60 hover:text-white transition-colors">
-                <LogOut className="w-5 h-5" />
-              </button>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">{dashboardData?.daily_streak || 0}</span>
-              </div>
-              <Badge size="medium" />
-            </div>
-          </div>
-        </header>
+  if (!dashboardData) {
+    return (
+      <Layout>
+        <div className="text-center py-12">
+          <p className="text-white/60">Unable to load dashboard data</p>
+        </div>
+      </Layout>
+    );
+  }
 
-        {/* Main content */}
-        <main className="flex-1 px-4 py-6 space-y-6">
-          {/* Daily ritual card */}
-          <Card variant="glass" className="text-center">
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-primary-600/20 rounded-full flex items-center justify-center mx-auto">
-                <Play className="w-8 h-8 text-primary-400" />
+  const getPersonalityDisplay = () => {
+    const parts = [];
+    if (dashboardData.disc_type) {
+      parts.push(`DISC: ${dashboardData.disc_type}`);
+    }
+    if (dashboardData.enneagram_type) {
+      parts.push(`Enneagram: ${dashboardData.enneagram_type}`);
+    }
+    return parts.join(' • ') || 'Not assessed';
+  };
+
+  const getTimingDisplay = () => {
+    if (!dashboardData.timing) return 'Not set';
+    return dashboardData.timing.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const getVoiceDisplay = () => {
+    if (!dashboardData.voice_id) return 'Not set';
+    return dashboardData.voice_id.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-white mb-2">
+          Welcome back, {dashboardData.full_name}
+        </h1>
+        <p className="text-white/60">
+          Continue your journey of growth and self-discovery
+        </p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card variant="glass" padding="small">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Flame className="w-6 h-6 text-orange-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">{dashboardData.daily_streak}</div>
+            <div className="text-xs text-white/60">Day Streak</div>
+          </div>
+        </Card>
+
+        <Card variant="glass" padding="small">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Award className="w-6 h-6 text-purple-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">{dashboardData.total_virtues}</div>
+            <div className="text-xs text-white/60">Virtues</div>
+          </div>
+        </Card>
+
+        <Card variant="glass" padding="small">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Calendar className="w-6 h-6 text-blue-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">{dashboardData.sessions_this_week}</div>
+            <div className="text-xs text-white/60">This Week</div>
+          </div>
+        </Card>
+
+        <Card variant="glass" padding="small">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Target className="w-6 h-6 text-green-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">{dashboardData.active_goals}</div>
+            <div className="text-xs text-white/60">Active Goals</div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Today's Session */}
+          <Card variant="glass" padding="medium">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-white flex items-center">
+                <MessageCircle className="w-5 h-5 mr-2 text-accent-300" />
+                Today's Session
+              </h2>
+              <Badge variant="accent" size="small">Ready</Badge>
+            </div>
+            <p className="text-white/70 mb-4 text-sm">
+              Start your daily check-in with Genesis. Reflect on your goals and receive personalized guidance.
+            </p>
+            <Button size="medium" icon={Play} className="w-full sm:w-auto">
+              Begin Session
+            </Button>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card variant="glass" padding="medium">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-accent-300" />
+              Recent Activity
+            </h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-white/10">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center mr-3">
+                    <Award className="w-4 h-4 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-white text-sm font-medium">Earned "Patience" virtue</div>
+                    <div className="text-white/60 text-xs">2 hours ago</div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-white/10">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center mr-3">
+                    <Target className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-white text-sm font-medium">Completed morning session</div>
+                    <div className="text-white/60 text-xs">Yesterday</div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center mr-3">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <div className="text-white text-sm font-medium">Set new personal goal</div>
+                    <div className="text-white/60 text-xs">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Profile Summary */}
+          <Card variant="glass" padding="medium">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <Brain className="w-5 h-5 mr-2 text-accent-300" />
+              Your Profile
+            </h2>
+            <div className="space-y-3 text-sm">
+              <div>
+                <div className="text-white/60 mb-1">Personality</div>
+                <div className="text-white">{getPersonalityDisplay()}</div>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white mb-2">Today's Session</h2>
-                <p className="text-white/70 text-sm mb-4">
-                  Your personalized 5-minute emotional check-in
-                </p>
+                <div className="text-white/60 mb-1">Preferred Timing</div>
+                <div className="text-white">{getTimingDisplay()}</div>
               </div>
-              <Button 
-                size="large"
-                icon={Play}
-                iconPosition="left"
-                className="w-full"
-                onClick={() => alert('Session will be implemented in Phase 3')}
-              >
-                Start Your Ritual
+              <div>
+                <div className="text-white/60 mb-1">Voice Preference</div>
+                <div className="text-white">{getVoiceDisplay()}</div>
+              </div>
+            </div>
+            <Button variant="outline" size="small" icon={Settings} className="w-full mt-4">
+              Update Preferences
+            </Button>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card variant="glass" padding="medium">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <Heart className="w-5 h-5 mr-2 text-accent-300" />
+              Quick Actions
+            </h2>
+            <div className="space-y-2">
+              <Button variant="outline" size="small" className="w-full justify-start">
+                <Target className="w-4 h-4 mr-2" />
+                View Goals
+              </Button>
+              <Button variant="outline" size="small" className="w-full justify-start">
+                <Award className="w-4 h-4 mr-2" />
+                Virtue Collection
+              </Button>
+              <Button variant="outline" size="small" className="w-full justify-start">
+                <Clock className="w-4 h-4 mr-2" />
+                Session History
               </Button>
             </div>
           </Card>
-
-          {/* Progress section */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card variant="glass">
-              <div className="text-center">
-                <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                <h3 className="font-semibold text-white">Streak</h3>
-                <p className="text-2xl font-bold text-green-400">{dashboardData?.daily_streak || 0} days</p>
-              </div>
-            </Card>
-            <Card variant="glass">
-              <div className="text-center">
-                <Badge size="small" variant="virtue" className="mx-auto mb-2" />
-                <h3 className="font-semibold text-white">Virtues</h3>
-                <p className="text-2xl font-bold text-accent-300">{dashboardData?.total_virtues || 0}</p>
-              </div>
-            </Card>
-          </div>
-
-          {/* Recent insights */}
-          <Card variant="glass">
-            <h3 className="font-semibold text-white mb-4">Recent Insights</h3>
-            <div className="space-y-3">
-              {recentInsights.map((insight, i) => (
-                <div key={i} className="p-3 bg-white/5 rounded-lg border border-white/10">
-                  <p className="text-white/90 text-sm leading-relaxed">
-                    {insight}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Virtue collection */}
-          <Card variant="glass">
-            <h3 className="font-semibold text-white mb-4">Virtue Collection</h3>
-            <div className="flex flex-wrap gap-3">
-              {virtues.map((virtue, i) => (
-                <div key={i} className="flex items-center space-x-2 px-3 py-2 bg-white/5 rounded-full border border-white/10">
-                  <Badge size="small" variant="virtue" />
-                  <span className="text-white/90 text-sm">{virtue}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </main>
-
-        {/* Bottom navigation */}
-        <nav className="px-4 py-3 bg-white/5 border-t border-white/10">
-          <div className="flex justify-around">
-            <TabButton icon={Home} label="Home" active />
-            <TabButton icon={Calendar} label="History" />
-            <TabButton icon={Target} label="Goals" />
-            <TabButton icon={Settings} label="Settings" />
-          </div>
-        </nav>
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
-
-interface TabButtonProps {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  active?: boolean;
-}
-
-const TabButton: React.FC<TabButtonProps> = ({ icon: Icon, label, active = false }) => {
-  return (
-    <button className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors ${
-      active ? 'text-primary-400' : 'text-white/60 hover:text-white'
-    }`}>
-      <Icon className="w-6 h-6" />
-      <span className="text-xs font-medium">{label}</span>
-    </button>
-  );
-};
-
-export default Dashboard;
