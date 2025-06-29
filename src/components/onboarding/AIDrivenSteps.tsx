@@ -55,7 +55,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
   return (
     <div className="flex flex-col h-full space-y-6">
       {/* Step Info Card with Integrated Animation */}
-      <Card variant="glass" padding="large" className="text-center flex-shrink-0">
+      <Card variant="glass" padding="medium" className="text-center flex-shrink-0">
         <div className="space-y-6">
           {/* Breathing Animation with Icon */}
           <div className="flex items-center justify-center">
