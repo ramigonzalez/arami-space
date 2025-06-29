@@ -1,4 +1,5 @@
 import React from 'react';
+import { Layout } from '../components/layout/Layout';
 import { Hero } from '../components/landing/Hero';
 import { Features } from '../components/landing/Features';
 import { Testimonials } from '../components/landing/Testimonials';
@@ -7,6 +8,7 @@ import { Footer } from '../components/landing/Footer';
 
 export const Landing: React.FC = () => {
   return (
+    <Layout>
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-900">
       {/* Bolt.new Badge */}
       <style dangerouslySetInnerHTML={{
@@ -60,5 +62,6 @@ export const Landing: React.FC = () => {
       <CTA />
       <Footer />
     </div>
+    </Layout>
   );
 };
