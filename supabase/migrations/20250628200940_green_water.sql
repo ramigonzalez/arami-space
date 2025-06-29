@@ -70,8 +70,8 @@ TO authenticated
 USING (auth.uid() = id);
 
 -- Trigger for profiles updated_at
-CREATE TRIGGER update_profiles_updated_at 
-BEFORE UPDATE ON profiles 
+CREATE OR REPLACE TRIGGER update_profiles_updated_at 
+BEFORE UPDATE ON public.profiles 
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Onboarding profiles table
@@ -163,8 +163,8 @@ TO authenticated
 USING (auth.uid() = user_id);
 
 -- Trigger for user_goals updated_at
-CREATE TRIGGER update_user_goals_updated_at 
-BEFORE UPDATE ON user_goals 
+CREATE OR REPLACE TRIGGER update_user_goals_updated_at 
+BEFORE UPDATE ON public.user_goals 
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Ritual preferences table
@@ -201,8 +201,8 @@ TO authenticated
 USING (auth.uid() = user_id);
 
 -- Trigger for ritual_preferences updated_at
-CREATE TRIGGER update_ritual_preferences_updated_at 
-BEFORE UPDATE ON ritual_preferences 
+CREATE OR REPLACE TRIGGER update_ritual_preferences_updated_at 
+BEFORE UPDATE ON public.ritual_preferences 
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Daily sessions table
@@ -347,7 +347,7 @@ GROUP BY p.id, p.full_name, p.language, p.onboarding_completed, op.disc_type, op
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, email, full_name)
+  INSERT INTO public.profiles (id, email, full_name)
   VALUES (
     NEW.id,
     NEW.email,
@@ -355,7 +355,7 @@ BEGIN
   );
   
   -- Initialize daily session streak
-  INSERT INTO user_streaks (user_id, streak_type, current_streak, longest_streak)
+  INSERT INTO public.user_streaks (user_id, streak_type, current_streak, longest_streak)
   VALUES (NEW.id, 'daily_session', 0, 0);
   
   RETURN NEW;
