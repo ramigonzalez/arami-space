@@ -8,23 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- User flow and onboarding logic implementation
-- Conditional routing based on authentication and onboarding status
-- Enhanced useAuth hook with profile refresh functionality
-- Comprehensive onboarding page with step-by-step flow
-- Loading states and proper error handling for auth transitions
+- Complete 5-step onboarding process with conversational AI integration
+- Genesis AI agent integration using ElevenLabs useConversation hook
+- Voice-driven personality assessment and preference collection
+- Multi-language and voice preference support in onboarding
+- Data collection and storage for personality profiles, ritual preferences, emotional categories, and goals
+- Progress indicator and step-by-step UI for onboarding flow
+- Conversation interface with real-time voice interaction
+- Voice controls for user speech input and AI response
+- Comprehensive data summary and completion flow
 
 ### Changed
-- App.tsx now implements intelligent routing for new vs returning users
-- useAuth hook enhanced with refreshProfile method for real-time updates
-- Onboarding page redesigned with progress indicators and step navigation
-- Improved console logging for better debugging of auth flow
+- Onboarding.tsx completely rewritten for 5-step conversational flow
+- DatabaseService enhanced with createEmotionalCategory method
+- Supabase types extended with UserEmotionalCategory interface
+- Project plan updated to reflect completed onboarding implementation
 
 ### Technical
-- Implemented user flow: Landing → Auth → Onboarding → Dashboard for new users
-- Returning users with completed onboarding go directly to Dashboard
-- Profile.onboarding_completed flag controls routing decisions
-- Added proper loading states during auth initialization and profile fetching
+- ElevenLabs conversation integration with client tools for data collection
+- Voice ID mapping for different languages and genders
+- Real-time conversation state management with React hooks
+- Comprehensive error handling for voice permissions and API calls
+- Database operations for storing onboarding results across multiple tables
+- Profile completion tracking and automatic navigation to dashboard
 
 ## [0.2.0] - 2025-01-29
 

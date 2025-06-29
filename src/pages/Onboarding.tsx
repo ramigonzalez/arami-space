@@ -1,63 +1,360 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { DatabaseService } from '../lib/database';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { CheckCircle, ArrowRight, User, Settings, Target } from 'lucide-react';
+import { Input } from '../components/ui/Input';
+import { Badge } from '../components/ui/Badge';
+import { ProgressIndicator } from '../components/onboarding/ProgressIndicator';
+import { ConversationInterface } from '../components/onboarding/ConversationInterface';
+import { VoiceControls } from '../components/onboarding/VoiceControls';
+import { 
+  CheckCircle, 
+  ArrowRight, 
+  User, 
+  Settings, 
+  Target, 
+  Mic,
+  Globe,
+  Volume2,
+  Sparkles,
+  Heart,
+  Brain
+} from 'lucide-react';
+import { useConversation } from '@11labs/react';
 
-interface OnboardingStep {
+// Types for onboarding steps and data
+type Step = 'welcome' | 'emotional_discovery' | 'ritual_design' | 'voice_selection' | 'complete';
+
+interface PersonalityProfile {
+  disc: 'D' | 'I' | 'S' | 'C';
+  enneagram?: string;
+  confidence: number;
+}
+
+interface RitualPreferences {
+  timing: 'morning_person' | 'evening_person';
+  duration: 'quick_focused' | 'deeper_dive';
+  style: 'guided_structure' | 'open_conversation';
+  voice_id: 'confident_coach' | 'warm_friend' | 'gentle_guide' | 'wise_mentor';
+  focus_area: 'stress_management' | 'goal_achievement' | 'relationships' | 'self_worth' | 'emotional_regulation';
+}
+
+interface Message {
   id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  completed: boolean;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
 }
 
-interface OnboardingProps {
-  // Future props can be added here
-}
+// Voice ID mapping for different languages and genders
+const VOICE_ID_MAP: Record<string, Record<string, string>> = {
+  en: {
+    male: 'pNInz6obpgDQGcFmaJgB', // Adam - confident, clear
+    female: 'EXAVITQu4vr4xnSDxMaL', // Bella - warm, friendly
+  },
+  pt: {
+    male: 'pNInz6obpgDQGcFmaJgB',
+    female: 'EXAVITQu4vr4xnSDxMaL',
+  },
+  es: {
+    male: 'pNInz6obpgDQGcFmaJgB',
+    female: 'EXAVITQu4vr4xnSDxMaL',
+  },
+  fr: {
+    male: 'pNInz6obpgDQGcFmaJgB',
+    female: 'EXAVITQu4vr4xnSDxMaL',
+  },
+};
 
-export const Onboarding: React.FC<OnboardingProps> = () => {
+const LANGUAGE_OPTIONS = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'pt', name: 'Português', flag: '🇧🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+];
+
+const GENDER_OPTIONS = [
+  { code: 'male', name: 'Male Voice', icon: '👨' },
+  { code: 'female', name: 'Female Voice', icon: '👩' },
+];
+
+export const Onboarding: React.FC = () => {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
+
+  // Step management
+  const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [loading, setLoading] = useState(false);
 
-  const steps: OnboardingStep[] = [
-    {
-      id: 'welcome',
-      title: 'Welcome to Arami Space',
-      description: 'Your personal journey to emotional wellness begins here.',
-      icon: <User className="w-6 h-6" />,
-      completed: false,
-    },
-    {
-      id: 'personality',
-      title: 'Personality Assessment',
-      description: 'Help us understand your unique personality type.',
-      icon: <Settings className="w-6 h-6" />,
-      completed: false,
-    },
-    {
-      id: 'goals',
-      title: 'Set Your Goals',
-      description: 'Define what you want to achieve on your wellness journey.',
-      icon: <Target className="w-6 h-6" />,
-      completed: false,
-    },
-  ];
+  // Welcome step data
+  const [userName, setUserName] = useState('');
+  const [language, setLanguage] = useState('en');
+  const [gender, setGender] = useState('female');
 
+  // AI collected data
+  const [personalityProfile, setPersonalityProfile] = useState<PersonalityProfile | null>(null);
+  const [ritualPreferences, setRitualPreferences] = useState<RitualPreferences | null>(null);
+  const [knowledgeCategories, setKnowledgeCategories] = useState<string[]>([]);
+  const [primaryGoals, setPrimaryGoals] = useState<string[]>([]);
+
+  // Conversation state
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentTranscript, setCurrentTranscript] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+
+  // Get signed URL for ElevenLabs conversation
+  const getSignedUrl = async (): Promise<string> => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-signed-url`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get signed URL');
+      }
+
+      const data = await response.json();
+      return data.signed_url;
+    } catch (error) {
+      console.error('Error getting signed URL:', error);
+      throw error;
+    }
+  };
+
+  // Initialize conversation hook
+  const conversation = useConversation({
+    onConnect: () => {
+      console.log("Connected to Genesis");
+      addMessage('ai', "Hello! I'm Genesis, your AI guide. I'm here to help you discover your unique personality and set up your perfect wellness journey.");
+    },
+    onDisconnect: () => {
+      console.log("Disconnected from Genesis");
+      setIsAiSpeaking(false);
+      setIsListening(false);
+    },
+    onMessage: (props: { message: string; source: string }) => {
+      console.log("Message:", props.message, "Source:", props.source);
+      if (props.source === 'ai') {
+        addMessage('ai', props.message);
+      }
+    },
+    onSpeechStart: () => {
+      console.log("AI started speaking");
+      setIsAiSpeaking(true);
+    },
+    onSpeechEnd: () => {
+      console.log("AI stopped speaking");
+      setIsAiSpeaking(false);
+    },
+    onUserSpeechStart: () => {
+      console.log("User started speaking");
+      setIsListening(true);
+      setCurrentTranscript('');
+    },
+    onUserSpeechEnd: () => {
+      console.log("User stopped speaking");
+      setIsListening(false);
+      if (currentTranscript) {
+        addMessage('user', currentTranscript);
+        setCurrentTranscript('');
+      }
+    },
+    onUserSpeechInterim: (transcript: string) => {
+      setCurrentTranscript(transcript);
+    },
+    onVolumeLevel: (level: number) => {
+      setAudioLevel(level);
+    },
+    onError: (message: string) => {
+      console.error("Conversation Error:", message);
+      addMessage('ai', "I'm sorry, I encountered an issue. Let me try to help you in a different way.");
+    },
+  });
+
+  // Request microphone permission on component mount
+  useEffect(() => {
+    const requestMic = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (error) {
+        console.error('Microphone permission denied:', error);
+      }
+    };
+    requestMic();
+  }, []);
+
+  // Helper function to add messages
+  const addMessage = (type: 'user' | 'ai', content: string) => {
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      type,
+      content,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  // Start conversation with Genesis
+  const startConversation = useCallback(async () => {
+    if (!userName.trim()) {
+      alert('Please enter your name to continue');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Request microphone permission
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Request signed URL
+      const signedUrl = await getSignedUrl();
+
+      // Select the correct voiceId from the map
+      const voiceId = VOICE_ID_MAP[language]?.[gender] || VOICE_ID_MAP["en"]["female"];
+
+      console.log("voiceId", voiceId);
+      console.log("language", language);
+      console.log("gender", gender);
+
+      setCurrentStep("emotional_discovery");
+
+      // Start the conversation with Genesis
+      await conversation.startSession({
+        overrides: { 
+          agent: { language }, 
+          tts: { voiceId } 
+        },
+        signedUrl,
+        dynamicVariables: {
+          user_name: userName,
+        },
+        clientTools: {
+          set_personality_profile: ({ disc, enneagram, confidence }: {
+            disc: 'D' | 'I' | 'S' | 'C',
+            enneagram?: string,
+            confidence: number
+          }): string => {
+            console.log("*** setPersonalityProfile ***", JSON.stringify({ disc, enneagram, confidence }));
+            setPersonalityProfile({ disc, enneagram, confidence });
+            return "Personality Profile Set Done";
+          },
+          set_ritual_preferences: ({ timing, duration, style, voice_id, focus_area }: {
+            timing: 'morning_person' | 'evening_person',
+            duration: 'quick_focused' | 'deeper_dive', 
+            style: 'guided_structure' | 'open_conversation',
+            voice_id: 'confident_coach' | 'warm_friend' | 'gentle_guide' | 'wise_mentor',
+            focus_area: 'stress_management' | 'goal_achievement' | 'relationships' | 'self_worth' | 'emotional_regulation'
+          }): string => {
+            console.log("*** setRitualPreferences ***", JSON.stringify({ timing, duration, style, voice_id, focus_area }));
+            setRitualPreferences({ timing, duration, style, voice_id, focus_area });
+            return "Ritual Preferences Set Done";
+          },
+          tag_knowledge_category: ({ categories }: { categories: string[] }): string => {
+            console.log("*** tagKnowledgeCategory ***", JSON.stringify(categories));
+            setKnowledgeCategories(categories);
+            return "Knowledge Category Tag Done";
+          },
+          set_primary_goals: ({ goals }: { goals: string[] }): string => {
+            console.log("*** setPrimaryGoals ***", JSON.stringify(goals));
+            setPrimaryGoals(goals);
+            return "Primary Goals Set Done";
+          },
+          complete_onboarding: async (): Promise<string> => {
+            setCurrentStep('complete');
+            console.log("*** complete_onboarding ***");
+            return 'Onboarding data saved successfully. Agent can now provide closing message before session ends.';
+          },
+          set_ui_step: ({ step }: { step: string }): string => {
+            setCurrentStep(step as Step);
+            console.log("***** set_ui_step ****", step);
+            return `Navigated to ${step}`;
+          },
+        }
+      });
+      
+      console.log("Conversation started successfully");
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
+      alert('Failed to start conversation. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [conversation, userName, language, gender]);
+
+  // Save all onboarding data and complete the process
   const handleCompleteOnboarding = async () => {
     if (!user) return;
 
     setLoading(true);
     try {
       console.log('Completing onboarding for user:', user.id);
-      
-      // Update the profile to mark onboarding as completed
+
+      // Save personality profile
+      if (personalityProfile) {
+        const profileResponse = await DatabaseService.createOnboardingProfile({
+          user_id: user.id,
+          disc_type: personalityProfile.disc,
+          enneagram_type: personalityProfile.enneagram ? parseInt(personalityProfile.enneagram) : undefined,
+          confidence_score: personalityProfile.confidence,
+          personality_insights: {},
+          assessment_transcript: messages.map(m => `${m.type}: ${m.content}`).join('\n'),
+        });
+
+        if (!profileResponse.success) {
+          console.error('Failed to save personality profile:', profileResponse.error);
+        }
+      }
+
+      // Save ritual preferences
+      if (ritualPreferences) {
+        const preferencesResponse = await DatabaseService.createRitualPreferences({
+          user_id: user.id,
+          timing: ritualPreferences.timing,
+          duration: ritualPreferences.duration,
+          style: ritualPreferences.style,
+          voice_id: ritualPreferences.voice_id,
+          focus_area: ritualPreferences.focus_area,
+          elevenlabs_voice_id: VOICE_ID_MAP[language]?.[gender] || VOICE_ID_MAP["en"]["female"],
+        });
+
+        if (!preferencesResponse.success) {
+          console.error('Failed to save ritual preferences:', preferencesResponse.error);
+        }
+      }
+
+      // Save emotional categories
+      for (const category of knowledgeCategories) {
+        await DatabaseService.createEmotionalCategory({
+          user_id: user.id,
+          category: category as any,
+          priority_level: 1,
+        });
+      }
+
+      // Save primary goals
+      for (const goal of primaryGoals) {
+        await DatabaseService.createGoal({
+          user_id: user.id,
+          goal_text: goal,
+          goal_type: 'emotional_wellness',
+          source: 'onboarding',
+        });
+      }
+
+      // Update profile to mark onboarding as completed
       const updateResponse = await DatabaseService.updateProfile(user.id, {
         onboarding_completed: true,
+        full_name: userName,
+        language: language as any,
       });
 
       if (updateResponse.success) {
@@ -70,7 +367,6 @@ export const Onboarding: React.FC<OnboardingProps> = () => {
         navigate('/dashboard');
       } else {
         console.error('Failed to complete onboarding:', updateResponse.error);
-        // Handle error - maybe show a toast notification
       }
     } catch (error) {
       console.error('Error completing onboarding:', error);
@@ -79,156 +375,310 @@ export const Onboarding: React.FC<OnboardingProps> = () => {
     }
   };
 
-  const handleNextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleCompleteOnboarding();
-    }
+  // Get current step info for progress indicator
+  const getStepInfo = () => {
+    const stepMap = {
+      welcome: { number: 1, label: 'Welcome' },
+      emotional_discovery: { number: 2, label: 'Discovery' },
+      ritual_design: { number: 3, label: 'Design' },
+      voice_selection: { number: 4, label: 'Voice' },
+      complete: { number: 5, label: 'Complete' },
+    };
+    return stepMap[currentStep];
   };
 
-  const currentStepData = steps[currentStep];
+  const stepInfo = getStepInfo();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className={`flex items-center ${
-                  index < steps.length - 1 ? 'flex-1' : ''
-                }`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                    index <= currentStep
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-400'
-                  }`}
-                >
-                  {index < currentStep ? (
-                    <CheckCircle className="w-5 h-5" />
-                  ) : (
-                    <span className="text-sm font-medium">{index + 1}</span>
-                  )}
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`flex-1 h-0.5 mx-4 ${
-                      index < currentStep ? 'bg-indigo-600' : 'bg-gray-300'
-                    }`}
-                  />
-                )}
+    <div className="min-h-screen bg-arami-gradient relative overflow-hidden">
+      {/* Grain texture overlay */}
+      <div className="absolute inset-0 grain-texture opacity-[0.03] pointer-events-none" />
+      
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Header with progress */}
+        <header className="px-4 pt-safe-top pb-4">
+          <div className="max-w-2xl mx-auto">
+            <ProgressIndicator
+              currentStep={stepInfo.number}
+              totalSteps={5}
+              stepLabels={['Welcome', 'Discovery', 'Design', 'Voice', 'Complete']}
+              className="mb-6"
+            />
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Badge size="medium" />
+                <span className="ml-3 text-white font-semibold">Genesis Onboarding</span>
               </div>
-            ))}
-          </div>
-          <p className="text-center text-gray-600">
-            Step {currentStep + 1} of {steps.length}
-          </p>
-        </div>
-
-        {/* Current Step Content */}
-        <Card className="p-8 text-center">
-          <div className="mb-6">
-            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <div className="text-indigo-600">
-                {currentStepData.icon}
-              </div>
+              <p className="text-white/70 text-sm">
+                Step {stepInfo.number} of 5 • {stepInfo.label}
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {currentStepData.title}
-            </h1>
-            <p className="text-lg text-gray-600">
-              {currentStepData.description}
-            </p>
           </div>
+        </header>
 
-          {/* Step-specific content */}
-          <div className="mb-8">
-            {currentStep === 0 && (
-              <div className="space-y-4">
-                <p className="text-gray-700">
-                  Arami Space is your personal AI mentor designed to help you develop emotional intelligence,
-                  build meaningful habits, and achieve your wellness goals.
-                </p>
-                <p className="text-gray-700">
-                  Let's get started by learning more about you and setting up your personalized experience.
-                </p>
-              </div>
+        {/* Main content */}
+        <main className="flex-1 px-4 pb-safe-bottom">
+          <div className="max-w-2xl mx-auto">
+            {/* Welcome Step */}
+            {currentStep === 'welcome' && (
+              <Card variant="glass" padding="large" className="text-center">
+                <div className="space-y-8">
+                  <div>
+                    <div className="w-20 h-20 bg-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <User className="w-10 h-10 text-primary-400" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-4">
+                      Welcome to Your Journey
+                    </h1>
+                    <p className="text-white/80 text-lg leading-relaxed">
+                      I'm Genesis, your AI guide. Let's discover your unique personality and create your perfect wellness ritual.
+                    </p>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Name Input */}
+                    <div>
+                      <label className="block text-white/90 font-medium mb-3 text-left">
+                        What should I call you?
+                      </label>
+                      <Input
+                        placeholder="Enter your name"
+                        value={userName}
+                        onChange={setUserName}
+                        icon={User}
+                        className="text-center"
+                      />
+                    </div>
+
+                    {/* Language Selection */}
+                    <div>
+                      <label className="block text-white/90 font-medium mb-3 text-left">
+                        Preferred Language
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {LANGUAGE_OPTIONS.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => setLanguage(lang.code)}
+                            className={`p-4 rounded-xl border transition-all duration-200 ${
+                              language === lang.code
+                                ? 'border-primary-400 bg-primary-600/20'
+                                : 'border-white/20 bg-white/5 hover:bg-white/10'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-2xl">{lang.flag}</span>
+                              <span className="text-white font-medium">{lang.name}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Gender/Voice Selection */}
+                    <div>
+                      <label className="block text-white/90 font-medium mb-3 text-left">
+                        Voice Preference
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {GENDER_OPTIONS.map((genderOption) => (
+                          <button
+                            key={genderOption.code}
+                            onClick={() => setGender(genderOption.code)}
+                            className={`p-4 rounded-xl border transition-all duration-200 ${
+                              gender === genderOption.code
+                                ? 'border-primary-400 bg-primary-600/20'
+                                : 'border-white/20 bg-white/5 hover:bg-white/10'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-2xl">{genderOption.icon}</span>
+                              <span className="text-white font-medium">{genderOption.name}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={startConversation}
+                    disabled={loading || !userName.trim()}
+                    size="large"
+                    icon={Mic}
+                    iconPosition="left"
+                    className="w-full"
+                  >
+                    {loading ? 'Connecting to Genesis...' : 'Start Voice Journey'}
+                  </Button>
+                </div>
+              </Card>
             )}
 
-            {currentStep === 1 && (
-              <div className="space-y-4">
-                <p className="text-gray-700">
-                  We'll conduct a brief personality assessment to understand your communication style,
-                  preferences, and how you best receive guidance.
-                </p>
-                <div className="bg-indigo-50 p-4 rounded-lg">
-                  <p className="text-indigo-800 text-sm">
-                    This assessment will help us customize your AI mentor's approach to match your personality type.
-                  </p>
+            {/* AI-Driven Steps */}
+            {(currentStep === 'emotional_discovery' || currentStep === 'ritual_design' || currentStep === 'voice_selection') && (
+              <div className="space-y-6">
+                {/* Step Info Card */}
+                <Card variant="glass" padding="medium" className="text-center">
+                  <div className="flex items-center justify-center space-x-4">
+                    {currentStep === 'emotional_discovery' && (
+                      <>
+                        <Brain className="w-8 h-8 text-accent-300" />
+                        <div>
+                          <h2 className="text-xl font-semibold text-white">Emotional Discovery</h2>
+                          <p className="text-white/70">Understanding your personality and emotional patterns</p>
+                        </div>
+                      </>
+                    )}
+                    {currentStep === 'ritual_design' && (
+                      <>
+                        <Settings className="w-8 h-8 text-accent-300" />
+                        <div>
+                          <h2 className="text-xl font-semibold text-white">Ritual Design</h2>
+                          <p className="text-white/70">Creating your personalized daily wellness ritual</p>
+                        </div>
+                      </>
+                    )}
+                    {currentStep === 'voice_selection' && (
+                      <>
+                        <Volume2 className="w-8 h-8 text-accent-300" />
+                        <div>
+                          <h2 className="text-xl font-semibold text-white">Voice Selection</h2>
+                          <p className="text-white/70">Choosing your perfect AI companion voice</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Conversation Interface */}
+                <Card variant="glass" padding="medium">
+                  <ConversationInterface
+                    messages={messages}
+                    isListening={isListening}
+                    currentTranscript={currentTranscript}
+                    isAiSpeaking={isAiSpeaking}
+                  />
+                </Card>
+
+                {/* Voice Controls */}
+                <div className="flex justify-center">
+                  <VoiceControls
+                    isRecording={isListening}
+                    isProcessing={isAiSpeaking}
+                    audioLevel={audioLevel}
+                    onStartRecording={() => conversation.startSession}
+                    onStopRecording={() => conversation.endSession}
+                  />
                 </div>
               </div>
             )}
 
-            {currentStep === 2 && (
-              <div className="space-y-4">
-                <p className="text-gray-700">
-                  Finally, let's set some initial goals for your wellness journey. You can always adjust
-                  these later as you grow and evolve.
-                </p>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-green-800 text-sm">
-                    Your goals will help guide your daily rituals and conversations with your AI mentor.
-                  </p>
+            {/* Congratulations Step */}
+            {currentStep === 'complete' && (
+              <Card variant="glass" padding="large" className="text-center">
+                <div className="space-y-8">
+                  <div>
+                    <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle className="w-10 h-10 text-green-400" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-4">
+                      Your Journey Begins!
+                    </h1>
+                    <p className="text-white/80 text-lg leading-relaxed">
+                      Genesis has learned about your unique personality and preferences. Here's what we discovered:
+                    </p>
+                  </div>
+
+                  {/* Summary of collected data */}
+                  <div className="space-y-6 text-left">
+                    {personalityProfile && (
+                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 className="text-white font-semibold mb-3 flex items-center">
+                          <Brain className="w-5 h-5 mr-2 text-accent-300" />
+                          Personality Profile
+                        </h3>
+                        <div className="space-y-2 text-white/80">
+                          <p><strong>DISC Type:</strong> {personalityProfile.disc}</p>
+                          {personalityProfile.enneagram && (
+                            <p><strong>Enneagram:</strong> Type {personalityProfile.enneagram}</p>
+                          )}
+                          <p><strong>Confidence:</strong> {Math.round(personalityProfile.confidence * 100)}%</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {ritualPreferences && (
+                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 className="text-white font-semibold mb-3 flex items-center">
+                          <Settings className="w-5 h-5 mr-2 text-accent-300" />
+                          Ritual Preferences
+                        </h3>
+                        <div className="space-y-2 text-white/80">
+                          <p><strong>Timing:</strong> {ritualPreferences.timing.replace('_', ' ')}</p>
+                          <p><strong>Duration:</strong> {ritualPreferences.duration.replace('_', ' ')}</p>
+                          <p><strong>Style:</strong> {ritualPreferences.style.replace('_', ' ')}</p>
+                          <p><strong>Voice:</strong> {ritualPreferences.voice_id.replace('_', ' ')}</p>
+                          <p><strong>Focus:</strong> {ritualPreferences.focus_area.replace('_', ' ')}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {knowledgeCategories.length > 0 && (
+                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 className="text-white font-semibold mb-3 flex items-center">
+                          <Heart className="w-5 h-5 mr-2 text-accent-300" />
+                          Emotional Focus Areas
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {knowledgeCategories.map((category, index) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 bg-accent-300/20 text-accent-300 rounded-full text-sm"
+                            >
+                              {category.replace('_', ' ')}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {primaryGoals.length > 0 && (
+                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 className="text-white font-semibold mb-3 flex items-center">
+                          <Target className="w-5 h-5 mr-2 text-accent-300" />
+                          Primary Goals
+                        </h3>
+                        <ul className="space-y-2 text-white/80">
+                          {primaryGoals.map((goal, index) => (
+                            <li key={index} className="flex items-start">
+                              <Sparkles className="w-4 h-4 mr-2 text-accent-300 mt-0.5 flex-shrink-0" />
+                              {goal}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    onClick={handleCompleteOnboarding}
+                    disabled={loading}
+                    size="large"
+                    icon={ArrowRight}
+                    iconPosition="right"
+                    className="w-full"
+                  >
+                    {loading ? 'Setting up your sanctuary...' : 'Enter Your Sanctuary'}
+                  </Button>
                 </div>
-              </div>
+              </Card>
             )}
           </div>
-
-          {/* Action Button */}
-          <Button
-            onClick={handleNextStep}
-            disabled={loading}
-            className="w-full sm:w-auto"
-          >
-            {loading ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Setting up...
-              </div>
-            ) : currentStep === steps.length - 1 ? (
-              <div className="flex items-center">
-                Complete Setup
-                <CheckCircle className="ml-2 w-4 h-4" />
-              </div>
-            ) : (
-              <div className="flex items-center">
-                Continue
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </div>
-            )}
-          </Button>
-        </Card>
-
-        {/* Skip Option */}
-        {currentStep < steps.length - 1 && (
-          <div className="text-center mt-6">
-            <button
-              onClick={handleCompleteOnboarding}
-              disabled={loading}
-              className="text-gray-500 hover:text-gray-700 text-sm underline"
-            >
-              Skip for now
-            </button>
-          </div>
-        )}
+        </main>
       </div>
     </div>
   );
-}
+};
 
 export default Onboarding;
