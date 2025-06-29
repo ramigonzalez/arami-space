@@ -25,7 +25,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
     <div className="h-full flex flex-col">
       <Card variant="glass" padding="medium" className="flex-1 flex flex-col">
         {/* Header - Fixed at top */}
-        <div className="flex-shrink-0 text-center mb-6">
+        <div className="flex-shrink-0 text-center mb-2">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
