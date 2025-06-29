@@ -92,7 +92,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 
           {/* Gender/Voice Selection */}
           <div>
-            <label className="block text-white/90 font-medium mb-2 text-left text-sm">
+            <label className="block text-white/90 font-medium mb-2 text-left text-sm pt-4">
               Voice Preference
             </label>
             <div className="grid grid-cols-2 gap-2">
