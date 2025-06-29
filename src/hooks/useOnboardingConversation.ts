@@ -251,7 +251,6 @@ export const useOnboardingConversation = ({
     startConversation,
     stopConversation,
     endConversation,
-    resetConversation,
     setTranscript,
     setAgentResponse,
     setConversationActive,
