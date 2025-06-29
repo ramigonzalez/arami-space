@@ -2,13 +2,17 @@ import React from 'react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { User, Bot } from 'lucide-react';
-import { Message, testMessages } from '../../data/testMessages';
+import { Message } from '../../types/onboarding';
+import { testMessages } from '../../data/onboardingMessages';
 
 interface ConversationInterfaceProps {
   messages: Message[];
 }
 
 export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages }) => {
+  // Use test messages if no real messages are provided
+  const displayMessages = messages.length > 0 ? messages : testMessages;
+
   return (
     <div className="flex flex-col space-y-4 h-full">
       {/* Messages container - now uses flex-1 for dynamic height */}
@@ -16,7 +20,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
         <div className="text-center">
           <h3 className="text-white text-lg font-semibold mb-5">Live chat with Genesis</h3>
         </div>
-        {testMessages.length === 0 ? (
+        {displayMessages.length === 0 ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Badge size="medium" />
@@ -27,7 +31,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
             </p>
           </div>
         ) : (
-          [...testMessages].reverse().map((message) => (
+          [...displayMessages].reverse().map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))
         )}

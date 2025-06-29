@@ -3,15 +3,7 @@ import { Card } from '../ui/Card';
 import { ConversationInterface } from './ConversationInterface';
 import { Brain, Settings, Volume2, X } from 'lucide-react';
 import { Button } from '../ui/Button';
-
-type Step = 'emotional_discovery' | 'ritual_design' | 'voice_selection';
-
-interface Message {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
-}
+import { Message, Step } from '../../types/onboarding';
 
 interface AIDrivenStepsProps {
   currentStep: Step;

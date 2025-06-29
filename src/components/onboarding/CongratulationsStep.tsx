@@ -2,20 +2,7 @@ import React from 'react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { CheckCircle, ArrowRight, Brain, Settings, Heart, Target, Sparkles } from 'lucide-react';
-
-interface PersonalityProfile {
-  disc: 'D' | 'I' | 'S' | 'C';
-  enneagram?: string;
-  confidence: number;
-}
-
-interface RitualPreferences {
-  timing: 'morning_person' | 'evening_person';
-  duration: 'quick_focused' | 'deeper_dive';
-  style: 'guided_structure' | 'open_conversation';
-  voice_id: 'confident_coach' | 'warm_friend' | 'gentle_guide' | 'wise_mentor';
-  focus_area: 'stress_management' | 'goal_achievement' | 'relationships' | 'self_worth' | 'emotional_regulation';
-}
+import { PersonalityProfile, RitualPreferences } from '../../types/onboarding';
 
 interface CongratulationsStepProps {
   personalityProfile: PersonalityProfile | null;
