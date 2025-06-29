@@ -20,7 +20,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ me
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         {displayMessages.length ? (
           <div className="text-center">
-            <h3 className="text-white text-md font-semibold mb-5">Live chat with Genesis</h3>
+            <h3 className="text-white text-md font-semibold mb-2">Live chat with Genesis</h3>
           </div>
         ) : (<></>)
        }
