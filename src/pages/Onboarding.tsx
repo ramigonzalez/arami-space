@@ -115,14 +115,6 @@ export const Onboarding: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({
-          agent_id: 'genesis-onboarding',
-          user_context: {
-            name: userName,
-            language: language,
-            gender: gender,
-          },
-        }),
       });
 
       if (!response.ok) {
