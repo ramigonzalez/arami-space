@@ -29,7 +29,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
-          <h1 className="text-lg font-bold text-white">
+          <h1 className="text-xl font-bold text-white">
             Your Journey Begins!
           </h1>
         </div>
