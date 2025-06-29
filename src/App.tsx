@@ -62,7 +62,8 @@ const AppRouter: React.FC<AppRouterProps> = () => {
 
   // User is authenticated and has profile
   // Check onboarding status to determine routing
-  const needsOnboarding = !profile.onboarding_completed;
+  // const needsOnboarding = !profile.onboarding_completed;
+  const needsOnboarding = true;
   
   console.log('User authenticated with profile, needs onboarding:', needsOnboarding);
 
