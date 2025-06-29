@@ -141,7 +141,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           >
             {isLoading ? 'Setting up your sanctuary...' : 'Enter Your Sanctuary'}
           </Button>
-      </div>
+        </div>
       </Card>
      </div>
     </div>
