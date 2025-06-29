@@ -1,69 +1,101 @@
-# Arami Space - Changelog
+# Arami Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the Arami project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2025-01-25
 
-### Added
-- Complete 5-step onboarding process with conversational AI integration
-- Genesis AI agent integration using ElevenLabs useConversation hook
-- Voice-driven personality assessment and preference collection
-- Multi-language and voice preference support in onboarding
-- Data collection and storage for personality profiles, ritual preferences, emotional categories, and goals
-- Progress indicator and step-by-step UI for onboarding flow
-- Conversation interface with real-time voice interaction
-- Voice controls for user speech input and AI response
-- Comprehensive data summary and completion flow
+### Removed
+- **PWA Features**: Removed Progressive Web App functionality from project scope
+  - Removed offline capability requirements
+  - Removed app-like navigation constraints
+  - Removed home screen installation features
+  - Simplified to responsive web application approach
 
 ### Changed
-- Onboarding.tsx completely rewritten for 5-step conversational flow
-- DatabaseService enhanced with createEmotionalCategory method
-- Supabase types extended with UserEmotionalCategory interface
-- Project plan updated to reflect completed onboarding implementation
+- **Product Requirements Document**: Updated PRD to reflect web-first approach instead of PWA
+- **Technical Architecture**: Simplified frontend stack without PWA constraints
+- **Project Scope**: Focused on responsive web design with mobile-first principles
 
 ### Technical
-- ElevenLabs conversation integration with client tools for data collection
-- Voice ID mapping for different languages and genders
-- Real-time conversation state management with React hooks
-- Comprehensive error handling for voice permissions and API calls
-- Database operations for storing onboarding results across multiple tables
-- Profile completion tracking and automatic navigation to dashboard
+- **Architecture Simplification**: Removed PWA-specific technical requirements
+- **Documentation Updates**: Updated all project documentation to reflect scope change
 
-## [0.2.0] - 2025-01-29
+## [0.2.0] - 2025-01-25
 
 ### Added
-- Complete authentication system with Supabase integration
-- Landing page with hero, features, testimonials, and CTA sections
-- Database service layer with comprehensive CRUD operations
-- Protected route component for authenticated access
-- User profile management system
-- Onboarding tracking infrastructure
+- **Mobile-First Design System**: Comprehensive design system documentation with iPhone 14 Pro optimization
+- **Fixed-Box Layout Architecture**: Implementation of containers with internal scrolling to prevent layout shifts
+- **Enhanced Conversation Interface**: Improved message bubble layout and alignment for better user experience
+- **Responsive Message Layout**: User and AI messages now have proper alignment and spacing
+- **Safe Area Support**: Added support for iPhone notch, dynamic island, and home indicator considerations
 
 ### Changed
-- Project structure organized with proper component separation
-- UI components enhanced with Tailwind CSS styling
-- Database schema implemented with proper RLS policies
+- **ConversationInterface Component**: 
+  - Switched from fixed height (h-96) to flexible height (flex-1) for better container utilization
+  - Improved message bubble alignment with proper flex layouts
+  - Enhanced user message alignment (right-aligned) vs AI messages (left-aligned)
+  - Added proper text wrapping with `break-words` for long messages
+  - Reduced maximum message width from 80% to 75% for better readability
+- **Design System Documentation**: Updated with mobile-first principles and fixed-box layout guidelines
+- **Project Plan**: Updated to reflect completed design system work and current UI/UX improvements
+
+### Improved
+- **Mobile User Experience**: Better touch targets and spacing for mobile devices
+- **Visual Hierarchy**: Clearer distinction between user and AI messages
+- **Scrolling Behavior**: Smoother internal scrolling within fixed containers
+- **Typography**: Enhanced readability with proper line heights and text wrapping
 
 ### Technical
-- React + TypeScript + Vite setup completed
-- Supabase authentication and database integration
-- Tailwind CSS configuration with custom design system
-- Component library with Button, Input, Card, Modal, Badge
+- **Layout Architecture**: Implemented fixed-box principle across conversation interface
+- **CSS Optimization**: Better use of Flexbox for responsive message layouts
+- **Component Structure**: Improved component organization and prop handling
 
-## [0.1.0] - 2025-01-28
+## [0.1.0] - 2025-01-20
 
 ### Added
-- Initial project setup with React + TypeScript + Vite
-- Basic project structure and configuration
-- Tailwind CSS integration
-- Lucide React icons setup
-- Initial component structure
+- **Project Foundation**: Initial Vite + React + TypeScript setup
+- **Authentication System**: Supabase integration with email/password authentication
+- **Database Schema**: Comprehensive schema for user profiles, onboarding, and wellness tracking
+- **Landing Page**: Complete landing page with hero, features, testimonials, and CTA sections
+- **Core UI Components**: Button, Card, Input, Modal, Badge components with Arami styling
+- **Onboarding Flow**: Multi-step onboarding with ElevenLabs voice integration
+- **Voice Interaction**: AI-driven personality discovery through voice conversations
+- **Protected Routes**: Authentication-based route protection
+- **Dashboard Structure**: Basic dashboard layout and navigation
 
 ### Technical
-- Development environment configuration
-- Build system setup with Vite
-- TypeScript configuration for type safety
-- ESLint and development tooling
+- **Supabase Setup**: Database, authentication, and edge functions configuration
+- **ElevenLabs Integration**: Voice conversation API integration
+- **Row Level Security**: Comprehensive RLS policies for data protection
+- **TypeScript Configuration**: Strict typing and best practices implementation
+- **Tailwind CSS**: Custom design system with Arami branding
+- **Mobile Optimization**: Responsive design with mobile-first approach
+
+### Database
+- **User Management**: Profiles, onboarding data, and preferences tables
+- **Wellness Tracking**: Goals, sessions, virtues, and streaks tables
+- **Communication**: Contacts, calls, and messaging infrastructure
+- **AI Integration**: Conversation history and mentor avatar management
+
+---
+
+## Version Numbering
+
+- **Major (X.0.0)**: Breaking changes, major feature releases
+- **Minor (0.X.0)**: New features, significant improvements
+- **Patch (0.0.X)**: Bug fixes, minor improvements
+
+## Categories
+
+- **Added**: New features
+- **Changed**: Changes in existing functionality
+- **Deprecated**: Soon-to-be removed features
+- **Removed**: Removed features
+- **Fixed**: Bug fixes
+- **Security**: Security improvements
+- **Technical**: Technical improvements, refactoring
+- **Database**: Database schema changes
+- **Improved**: Performance or UX improvements
