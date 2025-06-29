@@ -45,7 +45,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
           <h1 className="text-xl font-bold text-white mb-3">
             Welcome to Your Journey
           </h1>
-          <p className="text-white/80 text-sm leading-relaxed">
+          <p className="text-white/80 text-md leading-relaxed">
             Let's discover your unique personality and create your perfect wellness ritual through a voice experience.
           </p>
         </div>
