@@ -145,7 +145,7 @@ export const Auth: React.FC<AuthProps> = () => {
           : await AuthService.signUpWithEmail(email, password);
           
         if (result.success) {
-          setSuccess(authAction === 'signin' ? 'Welcome back! Redirecting...' : 'Account created! Redirecting...');
+          setSuccess(authAction === 'signin' ? 'Welcome back! Check your email!' : 'Account created! Please confirm your email.');
           // Navigation will be handled by the useAuth hook and useEffect above
         } else {
           setError(result.error || 'Authentication failed');
