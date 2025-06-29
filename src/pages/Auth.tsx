@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Phone, ArrowRight, ChevronDown, Sparkles } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card } from '../components/ui/Card';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Mail, Phone, ChevronDown, Sparkles } from 'lucide-react';
 import { AuthService } from '../lib/auth';
 import { useAuth } from '../hooks/useAuth';
 
@@ -370,7 +367,7 @@ export const Auth: React.FC<AuthProps> = () => {
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           @keyframes breathe {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.02); }
@@ -781,7 +778,7 @@ export const Auth: React.FC<AuthProps> = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes breathe {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.02); }
