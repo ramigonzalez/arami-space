@@ -53,7 +53,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   
   return (
     <div className={`
-      flex items-start space-x-2 
+      flex items-start space-x-4 
       ${isUser ? 'flex-row-reverse space-x-reverse justify-start' : 'flex-row justify-start'}
     `}>
       {/* Avatar */}
