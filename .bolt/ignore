@@ -5,7 +5,16 @@
 .bolt/prompt
 .env
 .gitignore
+README.md
 dev-dist/registerSW.js
+dist/assets/index-BYjRaxK-.css
+dist/assets/index-yQVBTN4t.js
+dist/index.html
+dist/manifest.json
+dist/manifest.webmanifest
+dist/registerSW.js
+dist/sw.js
+dist/workbox-74f2ef77.js
 eslint.config.js
 index.html
 package-lock.json
@@ -14,15 +23,15 @@ postcss.config.js
 public/manifest.json
 specs/api-documentation.md
 specs/arami-design-system.md
-specs/backend.md
-specs/changelog.md
+# specs/backend.md
+# specs/changelog.md
 specs/enhancements.md
 specs/marketing-plan.md
-specs/memory.md
+# specs/memory.md
 specs/prd.md
-specs/project-plan.md
+# specs/project-plan.md
 specs/schemas.md
-src/App.tsx
+# src/App.tsx
 src/components/auth/ProtectedRoute.tsx
 src/components/landing/CTA.tsx
 src/components/landing/Features.tsx
@@ -43,7 +52,7 @@ src/components/ui/Modal.tsx
 src/hooks/useVoiceRecording.ts
 src/index.css
 src/lib/auth.ts
-# src/lib/database.ts
+src/lib/database.ts
 src/lib/elevenlabs.ts
 src/lib/supabase.ts
 src/main.tsx
