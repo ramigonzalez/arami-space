@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { PersonalityProfile, RitualPreferences, OnboardingData } from '../types/onboarding';
 import { DatabaseService } from '../lib/database';
@@ -32,14 +32,14 @@ export const useOnboardingData = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Test data initialization (for development)
-  useState(() => {
+  useEffect(() => {
     /////// TEST PURPOSE - do not remove yet ///////
     setPersonalityProfile(JSON.parse('{"disc":"C","confidence":0.8}'));
     setRitualPreferences(JSON.parse('{"timing":"morning_person","duration":"quick_focused","style":"guided_structure","voice_id":"wise_mentor","focus_area":"goal_achievement"}'));
     setKnowledgeCategories(JSON.parse('["goal_achievement","stress_management"]'));
     setPrimaryGoals(JSON.parse('["procastinar menos en mi dia a dia"]'));
     ////////////////////////////////////////////
-  });
+  }, []);
 
   const updatePersonalityProfile = useCallback((profile: PersonalityProfile) => {
     setPersonalityProfile(profile);
