@@ -71,7 +71,8 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
           </div>
 
           {/* End Conversation Button */}
-          {true || (conversationActive && onEndConversation) && (
+          {/* {conversationActive && onEndConversation && ( */}
+          {true && (
             <div className="pt-4">
               <Button
                 variant="ghost"
