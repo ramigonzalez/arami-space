@@ -71,7 +71,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       {/* Message content */}
       <Card 
         variant="glass" 
-        padding="xsmall" 
+        padding="small" 
         className={`
           flex-1 max-w-[75%]
           ${isUser ? 'border-primary-400/30' : 'border-accent-300/30'}
