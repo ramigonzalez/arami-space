@@ -59,7 +59,7 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
 
   // Step management
-  const [currentStep, setCurrentStep] = useState<Step>('welcome');
+  const [currentStep, setCurrentStep] = useState<Step>('complete');
   const [loading, setLoading] = useState(false);
   const [conversationActive, setConversationActive] = useState(false);
 
@@ -76,6 +76,7 @@ export const Onboarding: React.FC = () => {
 
   // Conversation state
   const [messages, setMessages] = useState<Message[]>([]);
+
 
   // Get signed URL for ElevenLabs conversation
   const getSignedUrl = async (): Promise<string> => {
@@ -131,6 +132,13 @@ export const Onboarding: React.FC = () => {
       }
     };
     requestMic();
+
+    /////// TEST PURPOSE - do not remove yet ///////
+    setPersonalityProfile(JSON.parse('{"disc":"C","confidence":0.8}'))
+    setRitualPreferences(JSON.parse('{"timing":"morning_person","duration":"quick_focused","style":"guided_structure","voice_id":"wise_mentor","focus_area":"goal_achievement"}'))
+    setKnowledgeCategories(JSON.parse('["goal_achievement","stress_management"]'))
+    setPrimaryGoals(JSON.parse('["procastinar menos en mi dia a dia"]'))
+    ////////////////////////////////////////////
   }, []);
 
   // Helper function to add messages
