@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Message, Step } from '../../types/onboarding';
 
 interface AIDrivenStepsProps {
-  currentStep: Step;
+  currentStep: 'emotional_discovery' | 'ritual_design' | 'voice_selection';
   messages: Message[];
   onEndConversation?: () => Promise<void>;
   conversationActive?: boolean;

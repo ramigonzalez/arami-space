@@ -23,6 +23,8 @@ export interface RitualPreferences {
 
 export type Step = 'welcome' | 'emotional_discovery' | 'ritual_design' | 'voice_selection' | 'complete';
 
+export type Language = 'en' | 'es' | 'pt' | 'fr';
+
 export interface OnboardingData {
   personalityProfile: PersonalityProfile | null;
   ritualPreferences: RitualPreferences | null;
