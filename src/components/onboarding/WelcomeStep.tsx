@@ -81,7 +81,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
                       : 'border-white/20 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="justify-center flex items-center space-x-2">
                     <span className="text-lg">{lang.flag}</span>
                     <span className="text-white font-medium text-sm">{lang.name}</span>
                   </div>
