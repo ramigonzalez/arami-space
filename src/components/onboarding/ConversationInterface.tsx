@@ -77,7 +77,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           ${isUser ? 'border-primary-400/30' : 'border-accent-300/30'}
         `}
       >
-        <p className="text-white/90 text-sm leading-relaxed break-words p-0">
+        <p className="text-white/90 text-sm leading-relaxed break-words p-0 m-0">
           {message.content}
         </p>
         <div className="mt-2 text-xs text-white/50">
