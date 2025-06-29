@@ -5,6 +5,21 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-01-25
+
+### Fixed
+- **CongratulationsStep Layout**: Fixed button visibility and scrolling issues
+  - Button now always visible without scrolling, positioned inside the rounded glass container
+  - Implemented proper internal scrolling for content area using `flex-1 overflow-y-auto`
+  - Enhanced visual hierarchy with compact spacing and better information display
+  - Improved mobile-friendly layout with proper flex structure (header, scrollable content, fixed button)
+  - Better space utilization with smaller text and icons for improved information density
+
+### Improved
+- **Onboarding UX**: Enhanced final step user experience with better layout control
+- **Mobile Optimization**: Better content organization for mobile viewport constraints
+- **Visual Design**: More compact and readable information display in congratulations step
+
 ## [0.3.0] - 2025-01-25
 
 ### Removed
