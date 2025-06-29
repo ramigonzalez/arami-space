@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Breathing glow animation for onboarding */
+@keyframes breath-glow-advanced {
+  0%, 100% {
+    box-shadow: 0 0 60px 10px #846fda55, 0 0 0 0 #6556b955;
+    transform: scale(1);
+    background: linear-gradient(135deg, #846fda 0%, #ba9be6 100%);
+  }
+  30% {
+    box-shadow: 0 0 120px 40px #ba9be688, 0 0 0 0 #6556b955;
+    transform: scale(1.12);
+    background: linear-gradient(135deg, #ba9be6 0%, #846fda 100%);
+  }
+  60% {
+    box-shadow: 0 0 180px 60px #846fda88, 0 0 0 0 #6556b955;
+    transform: scale(1.06);
+    background: linear-gradient(135deg, #846fda 0%, #ba9be6 100%);
+  }
+}
+
+.animate-breath-glow-advanced {
+  animation: breath-glow-advanced 3s ease-in-out infinite;
+}

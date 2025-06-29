@@ -79,6 +79,11 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
         </div>
       </Card>
 
+      {/* Breathing Animation */}
+      <div className="my-10 flex items-center justify-center">
+        <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#846fda] via-[#6556b9] to-[#ba9be6] shadow-2xl animate-breath-glow-advanced flex items-center justify-center" />
+      </div>
+
       {/* Conversation Interface */}
       <Card variant="glass" padding="medium">
         <ConversationInterface
