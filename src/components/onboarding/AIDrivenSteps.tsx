@@ -68,21 +68,23 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Step Info Card */}
-      <Card variant="glass" padding="medium" className="text-center">
-        <div className="flex items-center justify-center space-x-4">
-          <IconComponent className="w-8 h-8 text-accent-300" />
+      {/* Step Info Card with Integrated Animation */}
+      <Card variant="glass" padding="large" className="text-center">
+        <div className="space-y-6">
+          {/* Breathing Animation with Icon */}
+          <div className="flex items-center justify-center">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#846fda] via-[#6556b9] to-[#ba9be6] shadow-2xl animate-breath-glow-advanced flex items-center justify-center">
+              <IconComponent className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          
+          {/* Step Information */}
           <div>
-            <h2 className="text-xl font-semibold text-white">{stepInfo.title}</h2>
+            <h2 className="text-xl font-semibold text-white mb-2">{stepInfo.title}</h2>
             <p className="text-white/70">{stepInfo.description}</p>
           </div>
         </div>
       </Card>
-
-      {/* Breathing Animation */}
-      <div className="my-10 flex items-center justify-center">
-        <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#846fda] via-[#6556b9] to-[#ba9be6] shadow-2xl animate-breath-glow-advanced flex items-center justify-center" />
-      </div>
 
       {/* Conversation Interface */}
       <Card variant="glass" padding="medium">
