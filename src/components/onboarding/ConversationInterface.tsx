@@ -29,11 +29,12 @@ const testMessages: Message[] = [
   { id: '10', type: 'user' as MessageType, content: "zcxzcx zxczxczxc czxzcx zxcczx", timestamp: new Date() },
   { id: '11', type: 'ai' as MessageType, content: "THIS MESSAGE MUST BE SHOWED FIRST", timestamp: new Date() }
 ]
+
 export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages }) => {
   return (
     <div className="flex flex-col space-y-4 h-full">
-      {/* Messages container */}
-      <div className="h-96 overflow-y-auto space-y-4 pr-2">
+      {/* Messages container - now uses flex-1 for dynamic height */}
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         <div className="text-center">
           <h3 className="text-white text-lg font-semibold mb-5">Live chat with Genesis</h3>
         </div>
