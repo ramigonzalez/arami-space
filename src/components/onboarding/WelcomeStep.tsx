@@ -75,13 +75,13 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
                 <button
                   key={lang.code}
                   onClick={() => setLanguage(lang.code as Language)}
-                  className={`text-center p-3 rounded-xl border transition-all duration-200 ${
+                  className={`p-3 rounded-xl border transition-all duration-200 ${
                     language === lang.code
                       ? 'border-primary-400 bg-primary-600/20'
                       : 'border-white/20 bg-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 text-center">
                     <span className="text-lg">{lang.flag}</span>
                     <span className="text-white font-medium text-sm">{lang.name}</span>
                   </div>
