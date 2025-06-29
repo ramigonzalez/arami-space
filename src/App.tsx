@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
-import Dashboard from './pages/Dashboard';
+import { Dashboard } from './pages/Dashboard';
 import { Layout } from './components/layout/Layout';
 import { Landing } from './pages/Landing';
 
