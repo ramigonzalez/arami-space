@@ -32,9 +32,6 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           <h1 className="text-xl font-bold text-white mb-3">
             Your Journey Begins!
           </h1>
-          <p className="text-white/80 text-sm leading-relaxed">
-            Genesis has learned about your unique personality and preferences. Here's what we discovered:
-          </p>
         </div>
 
         {/* Scrollable Content Area */}
