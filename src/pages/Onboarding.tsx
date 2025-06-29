@@ -142,36 +142,7 @@ export const Onboarding: React.FC = () => {
     },
     onMessage: (props: { message: string; source: string }) => {
       console.log("Message:", props.message, "Source:", props.source);
-      if (props.source === 'ai') {
-        addMessage('ai', props.message);
-      }
-    },
-    onSpeechStart: () => {
-      console.log("AI started speaking");
-      setIsAiSpeaking(true);
-    },
-    onSpeechEnd: () => {
-      console.log("AI stopped speaking");
-      setIsAiSpeaking(false);
-    },
-    onUserSpeechStart: () => {
-      console.log("User started speaking");
-      setIsListening(true);
-      setCurrentTranscript('');
-    },
-    onUserSpeechEnd: () => {
-      console.log("User stopped speaking");
-      setIsListening(false);
-      if (currentTranscript) {
-        addMessage('user', currentTranscript);
-        setCurrentTranscript('');
-      }
-    },
-    onUserSpeechInterim: (transcript: string) => {
-      setCurrentTranscript(transcript);
-    },
-    onVolumeLevel: (level: number) => {
-      setAudioLevel(level);
+      addMessage(props.source, props.message);
     },
     onError: (message: string) => {
       console.error("Conversation Error:", message);
