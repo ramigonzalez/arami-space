@@ -37,8 +37,10 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           </p>
         </div>
 
+        <div>
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-6">
+        <div className="flex-1 overflow-y-auto ">
+        <div className="space-y-4 pr-2 mb-6">
           {personalityProfile && (
             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
               <h3 className="text-white font-semibold mb-3 flex items-center text-sm">
@@ -131,6 +133,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
             </div>
           )}
         </div>
+        </div>          
 
         {/* Button - Fixed at bottom */}
         <div className="flex-shrink-0">
@@ -145,6 +148,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
             {isLoading ? 'Setting up your sanctuary...' : 'Enter Your Sanctuary'}
           </Button>
         </div>
+          </div>
       </Card>
     </div>
   );
