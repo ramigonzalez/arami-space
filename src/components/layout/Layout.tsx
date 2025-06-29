@@ -19,15 +19,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+    <div className="min-h-screen relative overflow-hidden bg-arami-gradient">
+      {/* Grain texture overlay */}
+      <div className="absolute inset-0 grain-texture opacity-[0.03] pointer-events-none" />
+      
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+      <header className="relative z-10 bg-surface-900/80 backdrop-blur-xl border-b border-accent-300/20 sticky top-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-badge-gradient bg-clip-text text-transparent">
                   Arami Space
                 </h1>
               </div>
@@ -38,8 +41,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               {profile && (
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2">
-                    <User className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">
+                    <User className="h-5 w-5 text-neutral-0/70" />
+                    <span className="text-sm font-medium text-neutral-0">
                       {profile.full_name || user?.email}
                     </span>
                   </div>
@@ -60,7 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         {children}
       </main>
     </div>
