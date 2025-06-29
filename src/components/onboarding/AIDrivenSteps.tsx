@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card } from '../ui/Card';
 import { ConversationInterface } from './ConversationInterface';
-import { VoiceControls } from './VoiceControls';
-import { Brain, Settings, Volume2 } from 'lucide-react';
+import { Brain, Settings, Volume2, X } from 'lucide-react';
+import { Button } from '../ui/Button';
 
 type Step = 'emotional_discovery' | 'ritual_design' | 'voice_selection';
 
@@ -16,11 +16,17 @@ interface Message {
 interface AIDrivenStepsProps {
   currentStep: Step;
   messages: Message[];
+  onEndConversation?: () => Promise<void>;
+  conversationActive?: boolean;
+  isLoading?: boolean;
 }
 
 export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
   currentStep,
   messages,
+  onEndConversation,
+  conversationActive = false,
+  isLoading = false,
 }) => {
   const getStepInfo = () => {
     switch (currentStep) {
@@ -71,6 +77,22 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
             <h2 className="text-xl font-semibold text-white mb-2">{stepInfo.title}</h2>
             <p className="text-white/70">{stepInfo.description}</p>
           </div>
+
+          {/* End Conversation Button */}
+          {conversationActive && onEndConversation && (
+            <div className="pt-4">
+              <Button
+                variant="ghost"
+                size="small"
+                onClick={onEndConversation}
+                disabled={isLoading}
+                className="border border-white/20 text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4 mr-2" />
+                {isLoading ? 'Ending...' : 'End Conversation'}
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 

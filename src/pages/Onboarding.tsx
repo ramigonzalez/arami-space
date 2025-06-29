@@ -40,13 +40,13 @@ const VOICE_ID_MAP: Record<string, Record<string, string>> = {
     male: 'pNInz6obpgDQGcFmaJgB', // Adam - confident, clear
     female: 'EXAVITQu4vr4xnSDxMaL', // Bella - warm, friendly
   },
-  pt: {
-    male: 'pNInz6obpgDQGcFmaJgB',
-    female: 'EXAVITQu4vr4xnSDxMaL',
-  },
   es: {
-    male: 'pNInz6obpgDQGcFmaJgB',
-    female: 'EXAVITQu4vr4xnSDxMaL',
+    male: "AvFwmpNEfWWu5mtNDqhH",
+    female: "9rvdnhrYoXoUt4igKpBw",
+  },
+  pt: {
+    male: "x6uRgOliu4lpcrqMH3s1",
+    female: "PZIBrGsMjLyYasEz50bI",
   },
   fr: {
     male: 'pNInz6obpgDQGcFmaJgB',
@@ -59,8 +59,9 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
 
   // Step management
-  const [currentStep, setCurrentStep] = useState<Step>('emotional_discovery');
+  const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [loading, setLoading] = useState(false);
+  const [conversationActive, setConversationActive] = useState(false);
 
   // Welcome step data
   const [userName, setUserName] = useState('');
@@ -103,10 +104,12 @@ export const Onboarding: React.FC = () => {
   const conversation = useConversation({
     onConnect: () => {
       console.log("Connected to Genesis");
+      setConversationActive(true);
       addMessage('ai', "Hello! I'm Genesis, your AI guide. I'm here to help you discover your unique personality and set up your perfect wellness journey.");
     },
     onDisconnect: () => {
       console.log("Disconnected from Genesis");
+      setConversationActive(false);
     },
     onMessage: (props: { message: string; source: string }) => {
       console.log("Message:", props.message, "Source:", props.source);
@@ -229,12 +232,29 @@ export const Onboarding: React.FC = () => {
     }
   }, [conversation, userName, language, gender]);
 
+  // End conversation handler
+  const endConversation = useCallback(async () => {
+    try {
+      setLoading(true);
+      await conversation.endSession();
+      setConversationActive(false);
+      setCurrentStep('complete');
+    } catch (error) {
+      console.error("Failed to end conversation:", error);
+      setConversationActive(false);
+      setCurrentStep('complete');
+    } finally {
+      setLoading(false);
+    }
+  }, [conversation]);
+
   // Save all onboarding data and complete the process
   const handleCompleteOnboarding = async () => {
     if (!user) return;
 
     setLoading(true);
     try {
+      debugger
       console.log('Completing onboarding for user:', user.id);
 
       // Save personality profile
@@ -368,6 +388,9 @@ export const Onboarding: React.FC = () => {
               <AIDrivenSteps
                 currentStep={currentStep as 'emotional_discovery' | 'ritual_design' | 'voice_selection'}
                 messages={messages}
+                onEndConversation={endConversation}
+                conversationActive={conversationActive}
+                isLoading={loading}
               />
             )}
 
