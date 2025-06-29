@@ -72,26 +72,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           console.log('useAuth: User authenticated, fetching profile');
           try {
-            const profileResponse = await DatabaseService.getProfile(session.user.id);
+            // Add timeout to prevent hanging
+            const profilePromise = DatabaseService.getProfile(session.user.id);
+            const timeoutPromise = new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+            );
+            
+            const profileResponse = await Promise.race([profilePromise, timeoutPromise]) as any;
             console.log('useAuth: Profile fetch response:', profileResponse);
             
-            if (profileResponse.success && mounted) {
-              setProfile(profileResponse.data);
-              console.log('useAuth: Profile set successfully:', profileResponse.data);
-            } else {
-              console.log('useAuth: Profile fetch failed or component unmounted');
-              if (mounted) setProfile(null);
+            if (mounted) {
+              if (profileResponse.success) {
+                setProfile(profileResponse.data);
+                console.log('useAuth: Profile set successfully:', profileResponse.data);
+              } else {
+                console.log('useAuth: Profile fetch failed:', profileResponse.error);
+                setProfile(null);
+              }
             }
           } catch (error) {
             console.error('useAuth: Error loading profile on auth change:', error);
-            if (mounted) setProfile(null);
+            if (mounted) {
+              setProfile(null);
+            }
           }
         } else {
           console.log('useAuth: No session user, clearing profile');
-          setProfile(null);
+          if (mounted) {
+            setProfile(null);
+          }
         }
         
-        // Mark as initialized and stop loading
+        // Mark as initialized and stop loading - ensure this always happens
         if (mounted) {
           console.log('useAuth: Setting loading to false and initialized to true');
           setLoading(false);
