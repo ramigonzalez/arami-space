@@ -16,8 +16,12 @@ public/manifest.json
 specs/api-documentation.md
 specs/arami-design-system.md
 specs/backend.md
+specs/changelog.md
+specs/enhancements.md
 specs/marketing-plan.md
+specs/memory.md
 specs/prd.md
+specs/project-plan.md
 specs/schemas.md
 src/App.tsx
 src/components/auth/ProtectedRoute.tsx
@@ -27,6 +31,13 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
+src/components/onboarding/AIDrivenSteps.tsx
+src/components/onboarding/CongratulationsStep.tsx
+src/components/onboarding/ConversationInterface.tsx
+src/components/onboarding/ProgressIndicator.tsx
+src/components/onboarding/VoiceControls.tsx
+src/components/onboarding/VoiceSelector.tsx
+src/components/onboarding/WelcomeStep.tsx
 src/components/ui/Badge.tsx
 src/components/ui/Button.tsx
 src/components/ui/Card.tsx
@@ -34,6 +45,7 @@ src/components/ui/Input.tsx
 src/components/ui/Modal.tsx
 src/hooks/useAuth.tsx
 src/hooks/useVoiceRecording.ts
+src/index.css
 src/lib/auth.ts
 src/lib/database.ts
 src/lib/elevenlabs.ts
@@ -42,6 +54,7 @@ src/main.tsx
 src/pages/Auth.tsx
 src/pages/Dashboard.tsx
 src/pages/Landing.tsx
+src/pages/Onboarding.tsx
 src/vite-env.d.ts
 supabase/functions/_shared/cors.ts
 supabase/functions/auth-magic-link/index.ts
@@ -49,6 +62,7 @@ supabase/functions/auth-phone/index.ts
 supabase/functions/elevenlabs-signed-url/index.ts
 supabase/functions/elevenlabs-tts/index.ts
 supabase/migrations/20250628200940_green_water.sql
+tailwind.config.js
 tsconfig.app.json
 tsconfig.json
 tsconfig.node.json
