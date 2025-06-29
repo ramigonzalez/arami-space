@@ -1,14 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
-import { Button } from './components/ui/Button';
 import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
-import Layout from './components/layout/Layout';
+import { Layout } from './components/layout/Layout';
+import { Landing } from './pages/Landing';
+
+interface AppRouterProps {
+  // Future props can be added here
+}
+
+interface AppProps {
+  // Future props can be added here
+}
 
 // Main App Router Component
-function AppRouter() {
+const AppRouter: React.FC<AppRouterProps> = () => {
   const { user, profile, loading, initialized } = useAuth();
 
   console.log('AppRouter render - user:', !!user, 'profile:', !!profile, 'loading:', loading, 'initialized:', initialized);
@@ -78,10 +86,10 @@ function AppRouter() {
       </Routes>
     </Layout>
   );
-}
+};
 
 // Main App Component
-function App() {
+const App: React.FC<AppProps> = () => {
   console.log('App render - initializing');
   
   return (
@@ -91,6 +99,7 @@ function App() {
       </Router>
     </AuthProvider>
   );
-}
+};
 
+export { App };
 export default App;

@@ -10,6 +10,10 @@ import { useAuth } from '../hooks/useAuth';
 type AuthMethod = 'email' | 'phone';
 type AuthAction = 'signin' | 'signup';
 
+interface AuthProps {
+  // Future props can be added here
+}
+
 const countryCodes = [
   { code: '+1', country: 'US', flag: '🇺🇸' },
   { code: '+44', country: 'UK', flag: '🇬🇧' },
@@ -68,7 +72,7 @@ const BreathingLight = () => (
   </div>
 );
 
-export default function Auth() {
+export const Auth: React.FC<AuthProps> = () => {
   const { user, profile, initialized, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -790,3 +794,5 @@ export default function Auth() {
     </div>
   );
 }
+
+export default Auth;

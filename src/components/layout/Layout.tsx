@@ -7,7 +7,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-function Layout({ children }: LayoutProps) {
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, profile, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -44,8 +44,8 @@ function Layout({ children }: LayoutProps) {
                     </span>
                   </div>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="secondary"
+                    size="small"
                     onClick={handleSignOut}
                     className="flex items-center space-x-2"
                   >
@@ -66,5 +66,3 @@ function Layout({ children }: LayoutProps) {
     </div>
   );
 }
-
-export default Layout;

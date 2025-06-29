@@ -14,7 +14,11 @@ interface OnboardingStep {
   completed: boolean;
 }
 
-export default function Onboarding() {
+interface OnboardingProps {
+  // Future props can be added here
+}
+
+export const Onboarding: React.FC<OnboardingProps> = () => {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
@@ -226,3 +230,5 @@ export default function Onboarding() {
     </div>
   );
 }
+
+export default Onboarding;

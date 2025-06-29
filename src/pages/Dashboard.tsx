@@ -4,9 +4,14 @@ import { DatabaseService } from '../lib/database';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Card } from '../components/ui/Card';
+import { Layout } from '../components/layout/Layout';
 import { Home, Calendar, Target, Settings, Play, TrendingUp, LogOut } from 'lucide-react';
 
-export const Dashboard: React.FC = () => {
+interface DashboardProps {
+  // Future props can be added here
+}
+
+export const Dashboard: React.FC<DashboardProps> = () => {
   const { user, profile, signOut } = useAuth();
   const [dashboardData, setDashboardData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);

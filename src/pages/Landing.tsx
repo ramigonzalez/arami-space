@@ -1,12 +1,16 @@
 import React from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Hero } from '../components/landing/Hero';
-import { Button } from '../components/ui/Button';
+import { Features } from '../components/landing/Features';
 import { Testimonials } from '../components/landing/Testimonials';
 import { CTA } from '../components/landing/CTA';
 import { Footer } from '../components/landing/Footer';
 
-export const Landing: React.FC = () => {
+interface LandingProps {
+  // Future props can be added here
+}
+
+export const Landing: React.FC<LandingProps> = () => {
   return (
     <Layout>
       <Hero />
