@@ -110,6 +110,25 @@ export class DatabaseService {
     }
   }
 
+  // Emotional Categories Management
+  static async createEmotionalCategory(categoryData: Partial<any>): Promise<DatabaseResponse<any>> {
+    try {
+      const { data, error } = await supabase
+        .from('user_emotional_categories')
+        .insert(categoryData)
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: 'Failed to create emotional category' };
+    }
+  }
+
   // Goals Management
   static async createGoal(goalData: Partial<UserGoal>): Promise<DatabaseResponse<UserGoal>> {
     try {

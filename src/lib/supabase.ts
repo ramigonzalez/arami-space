@@ -23,6 +23,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
+// TypeScript interfaces for database entities
+export interface UserEmotionalCategory {
+  id: string;
+  user_id: string;
+  category: 'stress_management' | 'goal_achievement' | 'relationships' | 'self_worth' | 'emotional_regulation' | 'work_life_balance' | 'personal_growth' | 'mindfulness';
+  priority_level: number;
+  created_at: string;
+}
+
 // Test the connection
 supabase.auth.getSession().then(({ data, error }) => {
   if (error) {
