@@ -61,7 +61,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
               value={userName}
               onChange={setUserName}
               icon={User}
-              className="text-center"
+              className="text-center text-sm"
             />
           </div>
 
