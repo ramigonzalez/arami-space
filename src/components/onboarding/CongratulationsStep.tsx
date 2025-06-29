@@ -127,7 +127,6 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
               </ul>
             </div>
           )}
-        </div>
 
         {/* Button - Fixed at bottom */}
         <div className="flex-shrink-0">
