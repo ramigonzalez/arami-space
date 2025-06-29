@@ -29,8 +29,8 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
-src/components/onboarding/AIDrivenSteps.tsx
-src/components/onboarding/CongratulationsStep.tsx
+# src/components/onboarding/AIDrivenSteps.tsx
+# src/components/onboarding/CongratulationsStep.tsx
 # src/components/onboarding/ConversationInterface.tsx
 src/components/onboarding/ProgressIndicator.tsx
 src/components/onboarding/VoiceControls.tsx
