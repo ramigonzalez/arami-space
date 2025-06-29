@@ -59,7 +59,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
         <div className="space-y-6">
           {/* Breathing Animation with Icon */}
           <div className="flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#846fda] via-[#6556b9] to-[#ba9be6] shadow-2xl animate-breath-glow-advanced flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#846fda] via-[#6556b9] to-[#ba9be6] shadow-2xl animate-breath-glow-advanced flex items-center justify-center">
               <IconComponent className="w-8 h-8 text-white" />
             </div>
           </div>
