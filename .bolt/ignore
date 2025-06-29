@@ -29,11 +29,11 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
-src/components/onboarding/AIDrivenSteps.tsx
+# src/components/onboarding/AIDrivenSteps.tsx
 src/components/onboarding/CongratulationsStep.tsx
-src/components/onboarding/ConversationInterface.tsx
+# src/components/onboarding/ConversationInterface.tsx
 src/components/onboarding/ProgressIndicator.tsx
-src/components/onboarding/VoiceControls.tsx
+# src/components/onboarding/VoiceControls.tsx
 src/components/onboarding/VoiceSelector.tsx
 src/components/onboarding/WelcomeStep.tsx
 src/components/ui/Badge.tsx
@@ -52,7 +52,7 @@ src/main.tsx
 src/pages/Auth.tsx
 src/pages/Dashboard.tsx
 src/pages/Landing.tsx
-src/pages/Onboarding.tsx
+# src/pages/Onboarding.tsx
 src/vite-env.d.ts
 supabase/functions/_shared/cors.ts
 supabase/functions/auth-magic-link/index.ts
