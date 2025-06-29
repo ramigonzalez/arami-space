@@ -144,7 +144,7 @@ export const CongratulationsStep: React.FC<CongratulationsStepProps> = ({
           </Button>
        
       </Card>
-         </div>
+     </div>
     </div>
   );
 };
