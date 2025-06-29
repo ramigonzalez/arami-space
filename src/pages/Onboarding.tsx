@@ -92,27 +92,22 @@ export const Onboarding: React.FC = () => {
     setCurrentStep('emotional_discovery');
   };
 
-  const handleEndConversation = async () => {
-    setLoading(true);
+  // End conversation handler
+  const endConversation = useCallback(async () => {
     try {
-      // Simulate API call to end conversation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setLoading(true);
+      await conversation.endSession();
       setConversationActive(false);
-      
-      // Move to next step based on current step
-      if (currentStep === 'emotional_discovery') {
-        setCurrentStep('ritual_design');
-      } else if (currentStep === 'ritual_design') {
-        setCurrentStep('voice_selection');
-      } else if (currentStep === 'voice_selection') {
-        setCurrentStep('complete');
-      }
+      setCurrentStep('complete');
     } catch (error) {
-      console.error('Error ending conversation:', error);
+      console.error("Failed to end conversation:", error);
+      setConversationActive(false);
+      setCurrentStep('complete');
     } finally {
       setLoading(false);
     }
-  };
+  }, [conversation]);
+
 
   const handleCompleteOnboarding = async () => {
     if (!user) return;
