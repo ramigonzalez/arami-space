@@ -1,313 +1,228 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useConversation } from '@11labs/react';
-import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card } from '../components/ui/Card';
-import { Mic, MicOff, Volume2, VolumeX, User, Globe, Users } from 'lucide-react';
+import { DatabaseService } from '../lib/database';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import { CheckCircle, ArrowRight, User, Settings, Target } from 'lucide-react';
 
-interface UserInputs {
-  name: string;
-  language: string;
-  gender: string;
+interface OnboardingStep {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  completed: boolean;
 }
 
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'pt', label: 'Português' },
-  { value: 'es', label: 'Español' },
-  { value: 'fr', label: 'Français' }
-];
-
-const GENDER_OPTIONS = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' }
-];
-
 export default function Onboarding() {
+  const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [currentStep, setCurrentStep] = useState<'inputs' | 'conversation'>('inputs');
-  const [userInputs, setUserInputs] = useState<UserInputs>({
-    name: '',
-    language: 'en',
-    gender: 'female'
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [signedUrl, setSignedUrl] = useState<string>('');
-  const [conversationId, setConversationId] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const conversation = useConversation({
-    onConnect: () => {
-      console.log('Connected to ElevenLabs conversation');
+  const steps: OnboardingStep[] = [
+    {
+      id: 'welcome',
+      title: 'Welcome to Arami Space',
+      description: 'Your personal journey to emotional wellness begins here.',
+      icon: <User className="w-6 h-6" />,
+      completed: false,
     },
-    onDisconnect: () => {
-      console.log('Disconnected from ElevenLabs conversation');
+    {
+      id: 'personality',
+      title: 'Personality Assessment',
+      description: 'Help us understand your unique personality type.',
+      icon: <Settings className="w-6 h-6" />,
+      completed: false,
     },
-    onMessage: (message) => {
-      console.log('Received message:', message);
+    {
+      id: 'goals',
+      title: 'Set Your Goals',
+      description: 'Define what you want to achieve on your wellness journey.',
+      icon: <Target className="w-6 h-6" />,
+      completed: false,
     },
-    onError: (error) => {
-      console.error('Conversation error:', error);
-    }
-  });
+  ];
 
-  const handleInputChange = (field: keyof UserInputs, value: string) => {
-    setUserInputs(prev => ({ ...prev, [field]: value }));
-  };
+  const handleCompleteOnboarding = async () => {
+    if (!user) return;
 
-  const getSignedUrl = async () => {
+    setLoading(true);
     try {
-      setIsLoading(true);
+      console.log('Completing onboarding for user:', user.id);
       
-      const { data, error } = await supabase.functions.invoke('elevenlabs-signed-url', {
-        body: {
-          agent_id: 'genesis-onboarding',
-          user_context: userInputs
-        }
+      // Update the profile to mark onboarding as completed
+      const updateResponse = await DatabaseService.updateProfile(user.id, {
+        onboarding_completed: true,
       });
 
-      if (error) {
-        throw error;
+      if (updateResponse.success) {
+        console.log('Onboarding marked as completed');
+        
+        // Refresh the profile to get the updated data
+        await refreshProfile();
+        
+        // Navigate to dashboard
+        navigate('/dashboard');
+      } else {
+        console.error('Failed to complete onboarding:', updateResponse.error);
+        // Handle error - maybe show a toast notification
       }
-
-      setSignedUrl(data.signed_url);
-      setConversationId(data.conversation_id);
-      return data.signed_url;
     } catch (error) {
-      console.error('Error getting signed URL:', error);
-      throw error;
+      console.error('Error completing onboarding:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const startConversation = async () => {
-    if (!userInputs.name.trim()) {
-      alert('Please enter your name');
-      return;
-    }
-
-    try {
-      const url = await getSignedUrl();
-      await conversation.startSession({ signedUrl: url });
-      setCurrentStep('conversation');
-    } catch (error) {
-      console.error('Failed to start conversation:', error);
-      alert('Failed to start conversation. Please try again.');
+  const handleNextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleCompleteOnboarding();
     }
   };
 
-  const endConversation = async () => {
-    await conversation.endSession();
-    
-    // Update user profile to mark onboarding as completed
-    if (user) {
-      await supabase
-        .from('profiles')
-        .update({ 
-          onboarding_completed: true,
-          full_name: userInputs.name,
-          language: userInputs.language
-        })
-        .eq('id', user.id);
-    }
-    
-    navigate('/dashboard');
-  };
+  const currentStepData = steps[currentStep];
 
-  // Render initial inputs step
-  if (currentStep === 'inputs') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Welcome to Arami</h1>
-            <p className="text-gray-600">Let's personalize your experience before we begin</p>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                What's your name?
-              </label>
-              <Input
-                type="text"
-                placeholder="Enter your name"
-                value={userInputs.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Globe className="w-4 h-4 inline mr-1" />
-                Preferred Language
-              </label>
-              <select
-                value={userInputs.language}
-                onChange={(e) => handleInputChange('language', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                {LANGUAGE_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Users className="w-4 h-4 inline mr-1" />
-                Voice Preference
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {GENDER_OPTIONS.map(option => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleInputChange('gender', option.value)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
-                      userInputs.gender === option.value
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={startConversation}
-            disabled={isLoading || !userInputs.name.trim()}
-            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
-          >
-            {isLoading ? 'Connecting...' : 'Start Voice Onboarding'}
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  // Render conversation step
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Mic className="w-10 h-10 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            {steps.map((step, index) => (
+              <div
+                key={step.id}
+                className={`flex items-center ${
+                  index < steps.length - 1 ? 'flex-1' : ''
+                }`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                    index <= currentStep
+                      ? 'bg-indigo-600 border-indigo-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-400'
+                  }`}
+                >
+                  {index < currentStep ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <span className="text-sm font-medium">{index + 1}</span>
+                  )}
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`flex-1 h-0.5 mx-4 ${
+                      index < currentStep ? 'bg-indigo-600' : 'bg-gray-300'
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Hi {userInputs.name}! 👋
-          </h1>
-          <p className="text-gray-600">
-            I'm Genesis, your AI guide. Let's have a conversation to set up your personalized experience.
+          <p className="text-center text-gray-600">
+            Step {currentStep + 1} of {steps.length}
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
-              Connection Status:
-            </span>
-            <span className={`text-sm font-medium ${
-              conversation.status === 'connected' ? 'text-green-600' : 'text-orange-600'
-            }`}>
-              {conversation.status === 'connected' ? 'Connected' : 'Connecting...'}
-            </span>
+        {/* Current Step Content */}
+        <Card className="p-8 text-center">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="text-indigo-600">
+                {currentStepData.icon}
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {currentStepData.title}
+            </h1>
+            <p className="text-lg text-gray-600">
+              {currentStepData.description}
+            </p>
           </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
-              Microphone:
-            </span>
-            <span className={`text-sm font-medium ${
-              conversation.isMicrophoneEnabled ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {conversation.isMicrophoneEnabled ? 'Active' : 'Inactive'}
-            </span>
+          {/* Step-specific content */}
+          <div className="mb-8">
+            {currentStep === 0 && (
+              <div className="space-y-4">
+                <p className="text-gray-700">
+                  Arami Space is your personal AI mentor designed to help you develop emotional intelligence,
+                  build meaningful habits, and achieve your wellness goals.
+                </p>
+                <p className="text-gray-700">
+                  Let's get started by learning more about you and setting up your personalized experience.
+                </p>
+              </div>
+            )}
+
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                <p className="text-gray-700">
+                  We'll conduct a brief personality assessment to understand your communication style,
+                  preferences, and how you best receive guidance.
+                </p>
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <p className="text-indigo-800 text-sm">
+                    This assessment will help us customize your AI mentor's approach to match your personality type.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                <p className="text-gray-700">
+                  Finally, let's set some initial goals for your wellness journey. You can always adjust
+                  these later as you grow and evolve.
+                </p>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <p className="text-green-800 text-sm">
+                    Your goals will help guide your daily rituals and conversations with your AI mentor.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
-              Speaking:
-            </span>
-            <span className={`text-sm font-medium ${
-              conversation.isSpeaking ? 'text-blue-600' : 'text-gray-500'
-            }`}>
-              {conversation.isSpeaking ? 'Genesis is speaking...' : 'Listening'}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex justify-center space-x-4">
+          {/* Action Button */}
           <Button
-            onClick={() => conversation.isMicrophoneEnabled ? conversation.stopRecording() : conversation.startRecording()}
-            variant={conversation.isMicrophoneEnabled ? "destructive" : "default"}
-            size="lg"
-            className="flex items-center space-x-2"
+            onClick={handleNextStep}
+            disabled={loading}
+            className="w-full sm:w-auto"
           >
-            {conversation.isMicrophoneEnabled ? (
-              <>
-                <MicOff className="w-5 h-5" />
-                <span>Mute</span>
-              </>
+            {loading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Setting up...
+              </div>
+            ) : currentStep === steps.length - 1 ? (
+              <div className="flex items-center">
+                Complete Setup
+                <CheckCircle className="ml-2 w-4 h-4" />
+              </div>
             ) : (
-              <>
-                <Mic className="w-5 h-5" />
-                <span>Unmute</span>
-              </>
+              <div className="flex items-center">
+                Continue
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </div>
             )}
           </Button>
+        </Card>
 
-          <Button
-            onClick={() => conversation.isMuted ? conversation.unmute() : conversation.mute()}
-            variant="outline"
-            size="lg"
-            className="flex items-center space-x-2"
-          >
-            {conversation.isMuted ? (
-              <>
-                <VolumeX className="w-5 h-5" />
-                <span>Unmute Audio</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-5 h-5" />
-                <span>Mute Audio</span>
-              </>
-            )}
-          </Button>
-        </div>
-
-        <div className="text-center">
-          <Button
-            onClick={endConversation}
-            variant="outline"
-            className="text-gray-600 hover:text-gray-800"
-          >
-            Complete Onboarding
-          </Button>
-        </div>
-
-        <div className="text-center text-sm text-gray-500">
-          <p>Speak naturally with Genesis. The conversation will guide you through:</p>
-          <ul className="mt-2 space-y-1">
-            <li>• Personality assessment</li>
-            <li>• Emotional wellness goals</li>
-            <li>• Ritual preferences setup</li>
-          </ul>
-        </div>
-      </Card>
+        {/* Skip Option */}
+        {currentStep < steps.length - 1 && (
+          <div className="text-center mt-6">
+            <button
+              onClick={handleCompleteOnboarding}
+              disabled={loading}
+              className="text-gray-500 hover:text-gray-700 text-sm underline"
+            >
+              Skip for now
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

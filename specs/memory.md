@@ -1,66 +1,77 @@
-# Memory Bank - Task Management
+# Arami Space - Memory Bank
 
-## Previous Tasks (Completed)
-- ✅ Project initialization and setup
-- ✅ Landing page implementation with hero, features, testimonials, CTA, footer
-- ✅ Basic authentication page structure
-- ✅ UI components library (Button, Input, Card, Badge, Modal)
-- ✅ Dashboard page layout
-- ✅ Onboarding flow structure
-- ✅ Project documentation setup
-- ✅ Domain setup configuration
+## Current Status
+**Phase:** User Flow & Onboarding Management
+**Last Updated:** 2025-01-29
 
-## Current Task (In Progress)
-**Phase 3: Genesis Onboarding System**
-- ✅ **Task 3.1**: ElevenLabs integration
-  - ✅ Created `elevenlabs-tts` Supabase Edge Function for secure API handling
-  - ✅ Updated VoiceService to use Edge Function instead of direct API calls
-  - ✅ Removed @11labs/client dependency from frontend
-  - ✅ Implemented secure API key management via Supabase secrets
-  - ✅ Added comprehensive error handling and validation
-  - ✅ Voice agent configuration with 4 distinct personalities
-  - ✅ Mobile voice interface foundation ready
+## Previous Tasks Completed ✅
+1. **Project Foundation**
+   - Set up React + TypeScript + Vite project structure
+   - Integrated Supabase for authentication and database
+   - Created basic UI components (Button, Input, Card, Modal, Badge)
+   - Implemented landing page with hero, features, testimonials, and CTA sections
 
-- 🔄 **Task 3.2**: Onboarding UI components (In Progress)
-  - ✅ Progress indicator component
-  - ✅ Conversation interface with message bubbles
-  - ✅ Voice controls with audio level visualization
-  - ✅ Voice selector with preview functionality
-  - 🔄 Mobile-optimized layout refinements needed
+2. **Authentication System**
+   - Built Auth page with sign up/sign in functionality
+   - Implemented useAuth hook for authentication state management
+   - Created ProtectedRoute component for route protection
+   - Set up database service layer for data operations
 
-**Status**: Task 3.1 completed with secure ElevenLabs integration. Ready for Task 3.2 completion and Task 3.3.
+3. **Database & Schema**
+   - Designed comprehensive database schema with all required tables
+   - Set up proper RLS policies for security
+   - Created database service methods for CRUD operations
+   - Implemented user profiles and onboarding tracking
 
-## Next Tasks (Planned)
-1. **Continue Phase 3: Genesis Onboarding System**
-   - Task 3.4: Genesis conversation logic implementation
-   - Task 3.5: Data collection and validation system
-   - Task 3.6: Voice selection system enhancement
-   - Task 3.7-3.12: Results processing and testing
+## Current Task 🔄
+**Implementing User Flow and Onboarding Logic**
 
-2. **Enhanced User Experience**
-   - Add profile editing functionality
-   - Implement user settings management
-   - Add data visualization for user progress
-   - Create session history and analytics views
+**Objective:** Create intelligent routing that directs users based on their authentication and onboarding status.
 
-3. **Session Management System**
-   - Implement daily ritual session creation
-   - Add session tracking and analytics
-   - Create virtue earning and collection system
-   - Add streak management and gamification
+**Requirements:**
+- New users: Landing → Auth → Onboarding → Dashboard
+- Returning users: Direct to Dashboard (skip onboarding if completed)
+- Check `profile.onboarding_completed` status for routing decisions
+- Update onboarding completion flag after successful onboarding
 
-## Technical Debt
-- Add comprehensive error handling for database operations
-- Implement proper loading states for all data fetching
-- Add form validation for user input fields
-- Create proper error boundaries for React components
-- Add offline support for PWA functionality
+**Implementation Steps:**
+1. ✅ Update project plan with user flow requirements
+2. 🔄 Modify App.tsx to implement conditional routing logic
+3. ⏳ Ensure onboarding completion tracking works properly
+4. ⏳ Test user flow for both new and returning users
+5. ⏳ Update changelog with implemented changes
 
-## Notes
-- Database schema includes all tables needed for MVP functionality
-- RLS policies ensure users can only access their own data
-- Authentication state is properly managed across the application
-- Protected routes prevent unauthorized access to app features
-- User profiles are automatically created on signup
-- Dashboard displays real user data from the database
-- Ready to proceed with Phase 3: Genesis Onboarding System
+## Next Tasks ⏳
+1. **Complete Onboarding Flow**
+   - Implement personality assessment interface
+   - Add ritual preferences setup
+   - Create onboarding completion mechanism
+
+2. **Dashboard Development**
+   - Build main dashboard/home page
+   - Implement ritual start interface
+   - Add user progress indicators
+
+3. **Core Ritual Experience**
+   - Voice recording and AI conversation
+   - Session management and tracking
+   - Integration with ElevenLabs TTS
+
+## Technical Decisions Made
+- Using Supabase for backend services (auth, database, edge functions)
+- Tailwind CSS for styling with custom design system
+- React hooks for state management
+- TypeScript for type safety
+- Modular component architecture
+
+## Known Issues
+- Service Workers not supported in StackBlitz (development only)
+- PWA manifest warnings (development environment)
+- Need to implement proper error handling for auth state changes
+
+## Architecture Notes
+- Authentication state managed through useAuth hook
+- Database operations abstracted through DatabaseService class
+- Protected routes ensure authenticated access
+- Profile and onboarding data linked through foreign keys
+- RLS policies ensure data security and user isolation
