@@ -90,7 +90,7 @@ export const AIDrivenSteps: React.FC<AIDrivenStepsProps> = ({
       </Card>
 
       {/* Conversation Interface - now with fixed height */}
-      <Card variant="glass" padding="small" className="flex-shrink-0 p-0">
+      <Card variant="glass" padding="small" className="flex-shrink-0 p-1">
         <ConversationInterface messages={messages} isTest={true} />
       </Card>
 
