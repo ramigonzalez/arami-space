@@ -24,7 +24,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   isAiSpeaking,
 }) => {
   return (
-    <div className="flex-1 flex flex-col space-y-4 max-h-96 overflow-hidden">
+    <div className="flex flex-col space-y-4 h-full">
       {/* Messages container */}
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         {messages.length === 0 ? (
