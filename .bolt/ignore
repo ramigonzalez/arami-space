@@ -1,16 +1,14 @@
 # ==== BOLT-ASSISTANT AUTO-GENERATED START ====
 # WARNING: This section is managed automatically by Bolt Assistant – any manual edits here will be overwritten.
+.bolt/assets/index-CD9BoZjM.js
+.bolt/assets/index-sWsB3UQd.css
 .bolt/config.json
 .bolt/ignore
+.bolt/index.html
 .bolt/prompt
 .env
 .gitignore
-AIDrivenSteps.tsxsrc/components/onboarding
-ConversationInterface.tsxsrc/components/onboarding
-Onboarding.tsxsrc/pages
-ProgressIndicator.tsxsrc/components/onboarding
 README.md
-WelcomeStep.tsxsrc/components/onboarding
 eslint.config.js
 index.html
 package-lock.json
@@ -34,9 +32,9 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
-src/components/onboarding/AIDrivenSteps.tsx
-# src/components/onboarding/CongratulationsStep.tsx
-src/components/onboarding/ConversationInterface.tsx
+# src/components/onboarding/AIDrivenSteps.tsx
+src/components/onboarding/CongratulationsStep.tsx
+# src/components/onboarding/ConversationInterface.tsx
 src/components/onboarding/ProgressIndicator.tsx
 src/components/onboarding/WelcomeStep.tsx
 src/components/ui/Badge.tsx

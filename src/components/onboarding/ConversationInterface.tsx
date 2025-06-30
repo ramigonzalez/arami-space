@@ -7,10 +7,10 @@ import { testMessages } from '../../data/onboardingMessages';
 
 interface ConversationInterfaceProps {
   messages: Message[];
-  isTest: boolean;
+  isTest?: boolean;
 }
 
-export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages, isTest }) => {
+export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({ messages, isTest = false }) => {
   // Use test messages if no real messages are provided
   const displayMessages = !isTest ? messages : testMessages;
 
@@ -73,7 +73,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         variant="glass" 
         padding="small" 
         className={`
-          flex-1 max-w-[75%]
+          flex-1 max-w-[75%] min-w-0
           ${isUser ? 'border-primary-400/30' : 'border-accent-300/30'}
         `}
       >
