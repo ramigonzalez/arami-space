@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './hooks/useAuth';
+import { AuthProvider } from './hooks/useAuth';
 import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
 import { Dashboard } from './pages/Dashboard';
@@ -9,16 +9,8 @@ import { Landing } from './pages/Landing';
 import AuthCallback from './pages/AuthCallback';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
-interface AppRouterProps {
-  // Future props can be added here
-}
-
-interface AppProps {
-  // Future props can be added here
-}
-
 // Main App Router Component
-const AppRouter: React.FC<AppRouterProps> = () => {
+const AppRouter: React.FC = () => {
   return (
     <Layout>
       <Routes>
@@ -47,8 +39,7 @@ const AppRouter: React.FC<AppRouterProps> = () => {
   );
 };
 
-// Main App Component
-const App: React.FC<AppProps> = () => {
+const App: React.FC = () => {
   console.log('App render - initializing');
   
   return (

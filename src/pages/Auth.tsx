@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Phone, ChevronDown, Sparkles } from 'lucide-react';
 import { AuthService } from '../lib/auth';
-import { useAuth } from '../hooks/useAuth';
 
 type AuthMethod = 'email' | 'phone';
 type AuthAction = 'signin' | 'signup';
@@ -69,23 +67,7 @@ const BreathingLight = () => (
   </div>
 );
 
-function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
-  let timeout: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn(...args), delay);
-  };
-}
-
 export const Auth: React.FC<AuthProps> = () => {
-  const { user, profile, initialized, loading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Derive authentication and onboarding status from available data
-  const isAuthenticated = !!user;
-  const isOnboardingComplete = profile?.onboarding_completed || false;
-  
   const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
   const [authAction, setAuthAction] = useState<AuthAction>('signin');
   const [usePassword, setUsePassword] = useState(true);
@@ -98,20 +80,6 @@ export const Auth: React.FC<AuthProps> = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [showVerification, setShowVerification] = useState(false);
   const [error, setError] = useState('');
-  // Prevent double navigation
-  const [hasNavigated, setHasNavigated] = useState(false);
-
-  useEffect(() => {
-    // Wait until everything is loaded and navigation hasn't happened yet
-    if (!initialized || loading || !user || !profile || hasNavigated) return;
-
-    if (profile.onboarding_completed) {
-      navigate('/dashboard', { replace: true });
-    } else {
-      navigate('/onboarding', { replace: true });
-    }
-    setHasNavigated(true);
-  }, [user, profile, initialized, loading, hasNavigated, navigate]);
 
   const [success, setSuccess] = useState('');
 
@@ -139,8 +107,7 @@ export const Auth: React.FC<AuthProps> = () => {
           : await AuthService.signUpWithEmail(email, password);
           
         if (result.success) {
-          setSuccess(authAction === 'signin' ? 'Welcome back! Check your email!' : 'Account created! Please confirm your email.');
-          // Navigation will be handled by the useAuth hook and useEffect above
+          setSuccess(authAction === 'signin' ? 'Welcome back! Redirecting!' : 'Account created! Please confirm your email.');
         } else {
           setError(result.error || 'Authentication failed');
         }
