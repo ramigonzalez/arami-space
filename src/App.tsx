@@ -6,7 +6,11 @@ import { Layout } from './components/layout/Layout';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Auth from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
+import { Goals } from './pages/Goals';
 import { Landing } from './pages/Landing';
+import { Profile } from './pages/Profile';
+import { Sessions } from './pages/Sessions';
+import { Virtues } from './pages/Virtues';
 import Onboarding from './pages/Onboarding';
 
 // Main App Router Component
@@ -79,6 +83,38 @@ const AppRouter: React.FC = () => {
           }
         />
         <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/goals"
+          element={
+            <ProtectedRoute>
+              <Goals />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sessions"
+          element={
+            <ProtectedRoute>
+              <Sessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/virtues"
+          element={
+            <ProtectedRoute>
+              <Virtues />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/onboarding"
           element={
             <ProtectedRoute>
@@ -87,7 +123,6 @@ const AppRouter: React.FC = () => {
           }
         />
         <Route path="/auth" element={<Auth />} />
-        {/* <Route path="/auth/callback" element={<AuthCallback />} /> */}
         <Route path="/" element={<Landing />} />
         <Route path="*" element={<SmartRedirect />} />
       </Routes>

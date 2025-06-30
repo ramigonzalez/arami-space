@@ -5,6 +5,43 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-01-30 - **MAJOR MILESTONE**
+
+### Added
+
+- **MAJOR**: Complete Phase 4 - Core Dashboard Features implementation
+  - **User Profile Management**: Comprehensive profile interface with personal information editing, personality profile display, and ritual preferences management
+  - **Goals System**: Full CRUD goal management with progress tracking, status management, SMART goal formatting, and comprehensive statistics
+  - **Sessions Management**: Complete session tracking with history, analytics, detailed session views, and virtue earning display
+  - **Virtue Collection System**: Gamified virtue tracking with rarity levels, visual icons, statistics, and detailed virtue information
+  - **Navigation System**: Mobile-first bottom navigation with conditional header display
+  - **Layout Enhancements**: Updated layout system with proper mobile optimization and safe area handling
+
+### Technical
+
+- **New Pages**: Profile, Goals, Sessions, Virtues pages with full functionality
+- **Navigation Component**: Bottom navigation bar for mobile-optimized experience
+- **Database Integration**: Full Supabase CRUD operations for all new features
+- **State Management**: Comprehensive form handling and real-time data updates
+- **UI Components**: Enhanced modals, forms, and interactive elements
+- **Route Integration**: Updated App.tsx with all new routes and protected route handling
+
+### Improved
+
+- **User Experience**: Complete dashboard functionality for user management and progress tracking
+- **Mobile Optimization**: All new features designed mobile-first with touch-friendly interactions
+- **Data Visualization**: Progress bars, statistics cards, and visual feedback throughout
+- **Error Handling**: Comprehensive error handling and loading states across all features
+- **Performance**: Optimized database queries and efficient state management
+
+### Features
+
+- **Profile Management**: Edit personal information, view personality assessment, manage ritual preferences
+- **Goal Tracking**: Create, edit, delete goals with progress tracking and status management
+- **Session History**: View session history with detailed analytics and emotional insights
+- **Virtue Collection**: Collect and view virtues with rarity system and earning statistics
+- **Progress Analytics**: Comprehensive statistics and progress visualization across all features
+
 ## [0.4.4] - 2025-01-30
 
 ### Fixed
