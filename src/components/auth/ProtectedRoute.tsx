@@ -18,11 +18,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const isAuthenticated = !!user;
   const isOnboardingComplete = profile?.onboarding_completed || false;
 
-  console.log("ProtectedRoute - initialized", initialized)
-  console.log("ProtectedRoute - loading", loading)
+  console.log("ProtectedRoute - State Check:", {
+    path: location.pathname,
+    initialized,
+    loading,
+    isAuthenticated,
+    isOnboardingComplete,
+    userId: user?.id,
+    profileExists: !!profile,
+    requireOnboarding
+  });
 
   // Show loading while auth is initializing
   if (!initialized || loading) {
+    console.log("ProtectedRoute - Showing loading spinner");
     return (
       <div className="min-h-screen bg-arami-gradient flex items-center justify-center">
         <div className="text-center">
@@ -33,27 +42,31 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  console.log("ProtectedRoute - isAuthenticated", isAuthenticated)
   // Redirect to auth if not authenticated
   if (!isAuthenticated) {
+    console.log("ProtectedRoute - Not authenticated, redirecting to auth");
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // Handle routing based on onboarding status and current path
   if (location.pathname === '/dashboard' && !isOnboardingComplete) {
     // User trying to access dashboard but hasn't completed onboarding
+    console.log("ProtectedRoute - Dashboard access without onboarding, redirecting to onboarding");
     return <Navigate to="/onboarding" replace />;
   }
 
   if (location.pathname === '/onboarding' && isOnboardingComplete) {
     // User trying to access onboarding but has already completed it
+    console.log("ProtectedRoute - Onboarding complete, redirecting to dashboard");
     return <Navigate to="/dashboard" replace />;
   }
 
   // Redirect to onboarding if required and not completed
   if (requireOnboarding && !isOnboardingComplete) {
+    console.log("ProtectedRoute - Onboarding required but not complete, redirecting");
     return <Navigate to="/onboarding" replace />;
   }
 
+  console.log("ProtectedRoute - All checks passed, rendering children");
   return <>{children}</>;
 };

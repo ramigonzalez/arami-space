@@ -7,10 +7,6 @@ import { AuthService } from '../lib/auth';
 type AuthMethod = 'email' | 'phone';
 type AuthAction = 'signin' | 'signup';
 
-interface AuthProps {
-  // Future props can be added here
-}
-
 const countryCodes = [
   { code: '+1', country: 'US', flag: '🇺🇸' },
   { code: '+44', country: 'UK', flag: '🇬🇧' },
@@ -69,7 +65,7 @@ const BreathingLight = () => (
   </div>
 );
 
-export const Auth: React.FC<AuthProps> = () => {
+export const Auth: React.FC = () => {
   const navigate = useNavigate();
   const { user, profile, loading, initialized } = useAuth();
   const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
@@ -133,7 +129,7 @@ export const Auth: React.FC<AuthProps> = () => {
           setError(result.error || 'Authentication failed');
         }
       }
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -165,7 +161,7 @@ export const Auth: React.FC<AuthProps> = () => {
           setError(result.error || 'Failed to send verification code');
         }
       }
-    } catch (error) {
+    } catch {
       setError('Network error. Please try again or use email authentication.');
     } finally {
       setIsLoading(false);
@@ -187,7 +183,7 @@ export const Auth: React.FC<AuthProps> = () => {
       } else {
         setError(result.error || 'Verification failed. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);

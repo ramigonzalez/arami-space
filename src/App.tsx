@@ -17,16 +17,28 @@ const AppRouter: React.FC = () => {
     const isAuthenticated = !!user;
     const isOnboardingComplete = profile?.onboarding_completed || false;
   
-    console.log("AppRouter - initialized", initialized)
-    console.log("AppRouter - loading", loading)
-    console.log("AppRouter - isAuthenticated", isAuthenticated)
-    console.log("AppRouter - isOnboardingComplete", isOnboardingComplete)
+    console.log("AppRouter - State Update:", {
+      initialized,
+      loading,
+      isAuthenticated,
+      isOnboardingComplete,
+      userId: user?.id,
+      profileData: profile
+    });
 
-  }, [initialized, loading]) 
+  }, [initialized, loading, user, profile]) 
 
   // Smart redirect component for catch-all route
   const SmartRedirect = () => {
+    console.log("SmartRedirect - Evaluating redirect logic:", {
+      initialized,
+      loading,
+      hasUser: !!user,
+      userId: user?.id
+    });
+
     if (!initialized || loading) {
+      console.log("SmartRedirect - Showing loading spinner");
       return (
         <div className="min-h-screen bg-arami-gradient flex items-center justify-center">
           <div className="text-center">
@@ -38,11 +50,14 @@ const AppRouter: React.FC = () => {
     }
 
     if (!user) {
+      console.log("SmartRedirect - No user, redirecting to landing");
       return <Navigate to="/" replace />;
     }
 
     const isOnboardingComplete = profile?.onboarding_completed || false;
-    return <Navigate to={isOnboardingComplete ? "/dashboard" : "/onboarding"} replace />;
+    const redirectTo = isOnboardingComplete ? "/dashboard" : "/onboarding";
+    console.log("SmartRedirect - User found, redirecting to:", redirectTo);
+    return <Navigate to={redirectTo} replace />;
   };
 
   return (
