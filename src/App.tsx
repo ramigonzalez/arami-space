@@ -19,12 +19,7 @@ interface AppProps {
 const AppRouter: React.FC<AppRouterProps> = () => {
   const { user, profile, loading, initialized } = useAuth();
 
-  console.log('AppRouter render - user:', !!user, 'profile:', !!profile, 'loading:', loading, 'initialized:', initialized);
-  console.log('Profile onboarding_completed:', profile?.onboarding_completed);
-
-  // Show loading state while auth is initializing
   if (!initialized || loading) {
-    console.log('Showing loading state');
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center">
         <div className="text-center">
@@ -35,9 +30,7 @@ const AppRouter: React.FC<AppRouterProps> = () => {
     );
   }
 
-  // User is not authenticated - show landing or auth
   if (!user) {
-    console.log('User not authenticated, showing public routes');
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -47,9 +40,7 @@ const AppRouter: React.FC<AppRouterProps> = () => {
     );
   }
 
-  // User is authenticated but no profile found
   if (!profile) {
-    console.log('User authenticated but no profile found, redirecting to auth');
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center">
         <div className="text-center">
@@ -60,24 +51,17 @@ const AppRouter: React.FC<AppRouterProps> = () => {
     );
   }
 
-  // User is authenticated and has profile
-  // Check onboarding status to determine routing
   const needsOnboarding = !profile.onboarding_completed;
-  // const needsOnboarding = true;
-  
-  console.log('User authenticated with profile, needs onboarding:', needsOnboarding);
 
   return (
     <Layout>
       <Routes>
         {needsOnboarding ? (
-          // User needs to complete onboarding
           <>
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="*" element={<Navigate to="/onboarding" replace />} />
           </>
         ) : (
-          // User has completed onboarding - show main app
           <>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/onboarding" element={<Navigate to="/dashboard" replace />} />

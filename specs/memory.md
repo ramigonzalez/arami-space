@@ -60,6 +60,12 @@
 - Maintain changelog with semantic versioning
 - Update API documentation as new edge functions are added
 
+### Refactor authentication and onboarding flow for new users (In Progress)
+- Removed duplicate navigation and navigation loops in Auth.tsx
+- Refactored useAuth to avoid simultaneous profile fetches and improve loading state
+- Added debounce to post-login navigation
+- Simplified routing logic in AppRouter
+
 ## Next Tasks (Planned)
 
 ### Phase 3: Onboarding Experience - Testing & Refinement

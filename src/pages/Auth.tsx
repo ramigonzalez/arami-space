@@ -69,6 +69,14 @@ const BreathingLight = () => (
   </div>
 );
 
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
 export const Auth: React.FC<AuthProps> = () => {
   const { user, profile, initialized, loading } = useAuth();
   const navigate = useNavigate();
@@ -91,35 +99,20 @@ export const Auth: React.FC<AuthProps> = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [error, setError] = useState('');
   // Handle navigation after successful authentication
-  useEffect(() => {
-    // Only proceed if auth is initialized and not loading
-    if (!initialized || loading) return;
+  const debouncedNavigate = React.useMemo(() => debounce((path: string) => navigate(path, { replace: true }), 150), [navigate]);
 
-    // If user is authenticated, navigate based on onboarding status
+  useEffect(() => {
+    if (!initialized || loading) return;
     if (user) {
-      console.log('User authenticated, profile:', profile);
-      
-      // If profile exists and onboarding is completed, go to dashboard
       if (profile && profile.onboarding_completed) {
-        console.log('Navigating to dashboard - onboarding completed');
-        navigate('/dashboard', { replace: true });
+        debouncedNavigate('/dashboard');
       } else {
-        // If no profile or onboarding not completed, go to onboarding
-        console.log('Navigating to onboarding - onboarding not completed');
-        navigate('/onboarding', { replace: true });
+        debouncedNavigate('/onboarding');
       }
     }
-  }, [user, profile, initialized, loading, navigate]);
+  }, [user, profile, initialized, loading, debouncedNavigate]);
 
   const [success, setSuccess] = useState('');
-
-  // Redirect authenticated users
-  useEffect(() => {
-    if (isAuthenticated) {
-      const from = location.state?.from?.pathname || (isOnboardingComplete ? '/dashboard' : '/onboarding');
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, isOnboardingComplete, navigate, location]);
 
   // Reset to password authentication when auth method or action changes
   useEffect(() => {

@@ -41,6 +41,15 @@ Arami is an AI-powered emotional wellness companion that provides personalized d
   - [x] Improved message bubble layout and alignment
 - [ ] **CURRENT TASK**: Voice controls optimization for mobile
 - [ ] **CURRENT TASK**: Loading states and error handling improvements
+- [ ] **NEW TASK**: Refactor authentication and onboarding flow for new users (In Progress)
+  - [ ] Remove duplicate navigation and navigation loops in Auth.tsx
+  - [ ] Refactor useAuth to avoid simultaneous profile fetches and improve loading state
+  - [ ] Simplify routing logic in AppRouter
+  - [ ] Add debounce to post-login navigation
+  - [ ] Test and validate new user flow (email/phone)
+  - [ ] Add temporary debug logs
+  - [ ] Update technical documentation and changelog
+  - [ ] (Optional) Add debug logs to database trigger
 - [ ] Testing and refinement of onboarding flow
 - [ ] Edge case handling and validation
 

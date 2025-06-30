@@ -5,6 +5,19 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2024-06-28
+
+### Changed
+- Refactored authentication and onboarding flow for new users to prevent navigation loops and improve reliability.
+
+### Fixed
+- Removed duplicate navigation and navigation loops in Auth.tsx that caused excessive reloads for new users.
+
+### Improved
+- useAuth now avoids simultaneous profile fetches and provides a more accurate loading state.
+- Added debounce to post-login navigation to prevent rapid redirects.
+- Simplified routing logic in AppRouter for a more predictable user experience.
+
 ## [0.3.1] - 2025-01-25
 
 ### Fixed
