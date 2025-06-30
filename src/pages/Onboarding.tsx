@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WelcomeStep } from '../components/onboarding/WelcomeStep';
 import { AIDrivenSteps } from '../components/onboarding/AIDrivenSteps';
 import { CongratulationsStep } from '../components/onboarding/CongratulationsStep';
 import { ProgressIndicator } from '../components/onboarding/ProgressIndicator';
+import { WelcomeStep } from '../components/onboarding/WelcomeStep';
+import { useAuth } from '../hooks/useAuth';
 import { useOnboardingConversation } from '../hooks/useOnboardingConversation';
 import { useOnboardingData } from '../hooks/useOnboardingData';
-import { Step, Language } from '../types/onboarding';
+import { Language, Step } from '../types/onboarding';
 
 export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // Step management
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
@@ -96,9 +98,20 @@ export const Onboarding: React.FC = () => {
       <div className="absolute inset-0 grain-texture opacity-[0.03] pointer-events-none" />
       
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header with progress - more compact */}
-        <header className="px-4 pt-safe-top pb-1">
+        {/* Enhanced Header with app branding and progress */}
+        <header className="px-4 pt-safe-top pb-4">
           <div className="max-w-md mx-auto">
+            {/* App Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-xl font-bold text-white">Arami Space</h1>
+              <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Progress Indicator */}
             <ProgressIndicator
               currentStep={stepInfo.number}
               totalSteps={5}

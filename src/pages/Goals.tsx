@@ -14,8 +14,6 @@ import {
   Circle, 
   Calendar,
   TrendingUp,
-  Clock,
-  Flag,
   Archive,
   Play,
   Pause

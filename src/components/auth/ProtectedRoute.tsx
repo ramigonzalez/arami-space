@@ -76,23 +76,32 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Handle routing based on onboarding status and current path
-  if (location.pathname === '/dashboard' && !isOnboardingComplete) {
-    // User trying to access dashboard but hasn't completed onboarding
-    console.log("ProtectedRoute - Dashboard access without onboarding, redirecting to onboarding");
-    return <Navigate to="/onboarding" replace />;
-  }
+  // CRITICAL FIX: Only make onboarding decisions when we have profile data OR after timeout
+  // This prevents the dashboard refresh bug where users get redirected to onboarding
+  // when their profile is still loading
+  if (profile || profileTimeout) {
+    // Handle routing based on onboarding status and current path
+    if (location.pathname === '/dashboard' && !isOnboardingComplete) {
+      // User trying to access dashboard but hasn't completed onboarding
+      console.log("ProtectedRoute - Dashboard access without onboarding, redirecting to onboarding");
+      return <Navigate to="/onboarding" replace />;
+    }
 
-  if (location.pathname === '/onboarding' && isOnboardingComplete) {
-    // User trying to access onboarding but has already completed it
-    console.log("ProtectedRoute - Onboarding complete, redirecting to dashboard");
-    return <Navigate to="/dashboard" replace />;
-  }
+    if (location.pathname === '/onboarding' && isOnboardingComplete) {
+      // User trying to access onboarding but has already completed it
+      console.log("ProtectedRoute - Onboarding complete, redirecting to dashboard");
+      return <Navigate to="/dashboard" replace />;
+    }
 
-  // Redirect to onboarding if required and not completed
-  if (requireOnboarding && !isOnboardingComplete) {
-    console.log("ProtectedRoute - Onboarding required but not complete, redirecting");
-    return <Navigate to="/onboarding" replace />;
+    // Redirect to onboarding if required and not completed
+    if (requireOnboarding && !isOnboardingComplete) {
+      console.log("ProtectedRoute - Onboarding required but not complete, redirecting");
+      return <Navigate to="/onboarding" replace />;
+    }
+  } else {
+    // Profile is still loading, don't make any onboarding-based redirects yet
+    // Just ensure the user stays on a valid authenticated page
+    console.log("ProtectedRoute - Profile still loading, allowing access to current page");
   }
 
   console.log("ProtectedRoute - All checks passed, rendering children");

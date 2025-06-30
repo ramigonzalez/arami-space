@@ -9,67 +9,101 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Landing Page**: Updated background gradient to match current design system
-  - Fixed outdated gradient classes (`from-primary-900 via-primary-800 to-surface-900`)
-  - Updated to use consistent `bg-arami-gradient` class across all pages
-  - Landing page now matches the visual consistency of the rest of the application
-  - Fixed responsive container classes for proper layout
+- **CRITICAL**: Dashboard refresh redirect bug resolved
+  - Fixed issue where logged users who completed onboarding were redirected to /onboarding when refreshing /dashboard
+  - Enhanced ProtectedRoute logic to wait for profile data before making onboarding completion decisions
+  - Prevents race condition where null profile was interpreted as incomplete onboarding
+  - Users can now refresh dashboard without incorrect redirects
+
+### Improved
+
+- **Onboarding Page Header**: Enhanced header design and branding
+  - Added "Arami Space" title and user avatar to onboarding page header
+  - Improved visual consistency across the application
+  - Maintained progress indicator while adding proper app branding
+  - Better user experience throughout onboarding flow
 
 ### Technical
 
-- **Design System Consistency**: Aligned landing page with current Tailwind configuration
-- **Visual Consistency**: Ensured all pages use the same background gradient implementation
+- **ProtectedRoute Enhancement**: Improved authentication and routing logic
+  - Added conditional logic to wait for profile data or timeout before redirect decisions
+  - Better handling of loading states during profile fetching
+  - Prevents premature routing decisions based on incomplete data
 
 ## [0.5.0] - 2025-01-30 - **MAJOR MILESTONE**
 
 ### Added
 
-- **MAJOR**: Complete Phase 4 - Core Dashboard Features implementation
-  - **User Profile Management**: Comprehensive profile interface with personal information editing, personality profile display, and ritual preferences management
-  - **Goals System**: Full CRUD goal management with progress tracking, status management, SMART goal formatting, and comprehensive statistics
-  - **Sessions Management**: Complete session tracking with history, analytics, detailed session views, and virtue earning display
-  - **Virtue Collection System**: Gamified virtue tracking with rarity levels, visual icons, statistics, and detailed virtue information
-  - **Navigation System**: Mobile-first bottom navigation with conditional header display
-  - **Layout Enhancements**: Updated layout system with proper mobile optimization and safe area handling
+- **Complete Dashboard System**: Full-featured dashboard implementation
+
+  - User profile management with personal information editing
+  - Goals system with CRUD operations and progress tracking
+  - Sessions management with history and analytics
+  - Virtue collection system with rarity-based gamification
+  - Comprehensive statistics and progress visualization
+
+- **Navigation System**: Mobile-first bottom navigation
+
+  - Dashboard, Profile, Goals, Sessions, and Virtues pages
+  - Responsive design optimized for mobile devices
+  - Proper route integration and state management
+
+- **Profile Management**: Comprehensive user profile interface
+
+  - Personal information editing with validation
+  - Personality profile display from onboarding data
+  - Ritual preferences management with modal interface
+  - Account settings and subscription information
+
+- **Goals System**: Full goal management functionality
+
+  - Goal creation, editing, and deletion
+  - Progress tracking with visual indicators
+  - Status management (active, completed, paused, archived)
+  - Goal categorization and SMART goal support
+  - Statistics dashboard with filtering and search
+
+- **Sessions Interface**: Session tracking and management
+
+  - Session history with detailed information
+  - Session statistics and completion tracking
+  - Session type filtering and status management
+  - Detailed session modals with insights
+
+- **Virtue Collection**: Gamified virtue tracking system
+  - Virtue collection with rarity system
+  - Visual virtue display with color-coded gradients
+  - Virtue statistics and earning history
+  - Streak tracking and achievement display
 
 ### Technical
 
-- **New Pages**: Profile, Goals, Sessions, Virtues pages with full functionality
-- **Navigation Component**: Bottom navigation bar for mobile-optimized experience
-- **Database Integration**: Full Supabase CRUD operations for all new features
-- **State Management**: Comprehensive form handling and real-time data updates
-- **UI Components**: Enhanced modals, forms, and interactive elements
-- **Route Integration**: Updated App.tsx with all new routes and protected route handling
-
-### Improved
-
-- **User Experience**: Complete dashboard functionality for user management and progress tracking
-- **Mobile Optimization**: All new features designed mobile-first with touch-friendly interactions
-- **Data Visualization**: Progress bars, statistics cards, and visual feedback throughout
-- **Error Handling**: Comprehensive error handling and loading states across all features
-- **Performance**: Optimized database queries and efficient state management
-
-### Features
-
-- **Profile Management**: Edit personal information, view personality assessment, manage ritual preferences
-- **Goal Tracking**: Create, edit, delete goals with progress tracking and status management
-- **Session History**: View session history with detailed analytics and emotional insights
-- **Virtue Collection**: Collect and view virtues with rarity system and earning statistics
-- **Progress Analytics**: Comprehensive statistics and progress visualization across all features
+- **Component Architecture**: Modular and reusable components
+  - Enhanced UI component library
+  - Proper TypeScript integration
+  - Modal management and state handling
+  - Form validation and error handling
 
 ## [0.4.4] - 2025-01-30
 
 ### Fixed
 
-- **CRITICAL**: Complete email confirmation redirect flow
-  - **Email Template Fix**: Updated Supabase email template to use `{{ .RedirectTo }}` instead of `{{ .SiteURL }}`
-  - **Result**: Email confirmation links now properly redirect to `/auth/callback` instead of malformed `/#` URLs
-  - **Multi-tab Support**: AuthCallback now handles users already authenticated in other tabs
-  - **Smart Redirects**: Complete flow from email confirmation → callback → onboarding/dashboard based on user status
+- **CRITICAL**: Complete email confirmation redirect flow fix (Final Resolution)
+  - **Part 3**: Updated Supabase email template configuration
+    - Changed email template from `{{ .SiteURL }}` to `{{ .RedirectTo }}`
+    - Email confirmation links now properly formatted with callback parameters
+    - Fixed malformed URLs that were ending with just "#"
+  - **Multi-tab handling**: Added detection for already-authenticated users
+    - AuthCallback now detects when user is already authenticated in another tab
+    - Provides appropriate redirect without unnecessary auth state changes
+    - Prevents conflicts when clicking email links with existing sessions
 
 ### Improved
 
-- **New User Experience**: Seamless email confirmation flow from signup to onboarding
+- **Email Confirmation Flow**: Complete end-to-end reliability
+  - New users: signup → email confirmation → callback → onboarding (seamless)
+  - Existing users: proper dashboard redirects based on onboarding status
+  - Multi-tab scenarios: intelligent handling of already-authenticated states
 - **Authentication Reliability**: Robust handling of edge cases and multi-tab scenarios
 - **Email Links**: Properly formatted confirmation URLs with correct callback parameters
 
@@ -145,13 +179,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved debugging logs throughout the authentication flow
   - More robust handling of edge cases in auth state transitions
   - Proper async/await handling in profile fetch retries
-- **User Experience**: Smoother onboarding flow with better loading states
-  - Added proper loading indicators during profile data retrieval
-  - Reduced user confusion during authentication process
-  - Added development debug component for troubleshooting auth issues
-- **Error Resilience**: Better handling of database inconsistencies
-  - Automatic cleanup of stale sessions when user data is missing
-  - Graceful fallbacks when profile fetch fails permanently
 
 ### Technical
 
