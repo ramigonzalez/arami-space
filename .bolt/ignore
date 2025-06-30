@@ -29,7 +29,7 @@ src/components/landing/Features.tsx
 src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
-src/components/layout/Layout.tsx
+# src/components/layout/Layout.tsx
 src/components/layout/Navigation.tsx
 src/components/onboarding/AIDrivenSteps.tsx
 src/components/onboarding/CongratulationsStep.tsx
