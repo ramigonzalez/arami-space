@@ -14,7 +14,8 @@ import {
   Shield,
   Compass,
   Flame,
-  Gem
+  Gem,
+  Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
