@@ -68,7 +68,7 @@ Deno.serve(async (req: Request) => {
     const { error } = await supabaseClient.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectTo || `${Deno.env.get('SUPABASE_URL')}/auth/callback`,
+        emailRedirectTo: redirectTo || `${Deno.env.get('SUPABASE_URL')}/dashboard`,
       },
     });
 

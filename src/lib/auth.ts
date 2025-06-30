@@ -14,7 +14,7 @@ export class AuthService {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: email.split('@')[0], // Use email prefix as default name
           }
@@ -64,7 +64,7 @@ export class AuthService {
         },
         body: JSON.stringify({
           email,
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/dashboard`,
         }),
       });
 
@@ -215,7 +215,7 @@ export class AuthService {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
       if (error) {

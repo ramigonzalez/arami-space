@@ -5,7 +5,6 @@ import { AuthDebug } from './components/debug/AuthDebug';
 import { Layout } from './components/layout/Layout';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Auth from './pages/Auth';
-import AuthCallback from './pages/AuthCallback';
 import { Dashboard } from './pages/Dashboard';
 import { Landing } from './pages/Landing';
 import Onboarding from './pages/Onboarding';
@@ -88,7 +87,7 @@ const AppRouter: React.FC = () => {
           }
         />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
+        {/* <Route path="/auth/callback" element={<AuthCallback />} /> */}
         <Route path="/" element={<Landing />} />
         <Route path="*" element={<SmartRedirect />} />
       </Routes>

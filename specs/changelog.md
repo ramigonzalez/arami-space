@@ -5,6 +5,28 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2025-01-30
+
+### Fixed
+
+- **CRITICAL**: Complete email confirmation redirect flow
+  - **Email Template Fix**: Updated Supabase email template to use `{{ .RedirectTo }}` instead of `{{ .SiteURL }}`
+  - **Result**: Email confirmation links now properly redirect to `/auth/callback` instead of malformed `/#` URLs
+  - **Multi-tab Support**: AuthCallback now handles users already authenticated in other tabs
+  - **Smart Redirects**: Complete flow from email confirmation → callback → onboarding/dashboard based on user status
+
+### Improved
+
+- **New User Experience**: Seamless email confirmation flow from signup to onboarding
+- **Authentication Reliability**: Robust handling of edge cases and multi-tab scenarios
+- **Email Links**: Properly formatted confirmation URLs with correct callback parameters
+
+### Technical
+
+- **Email Template Configuration**: Updated to use `{{ .RedirectTo }}` for dynamic redirect URLs
+- **AuthCallback Enhancement**: Added already-authenticated user detection and smart redirects
+- **Authentication Flow**: Complete end-to-end fix for email signup → confirmation → onboarding
+
 ## [0.4.3] - 2025-01-30
 
 ### Changed
