@@ -5,6 +5,33 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-01-30
+
+### Fixed
+
+- **CRITICAL**: Navigation bug for users who haven't completed onboarding
+  - Fixed race condition in useAuth hook where SIGNED_IN events were ignored during initialization
+  - Added retry logic for profile fetching to handle database trigger timing delays
+  - Added timeout handling in ProtectedRoute for profile loading scenarios
+  - Users now properly navigate to onboarding page after successful sign-in
+  - Eliminated cases where authenticated users would be stuck without navigation
+
+### Improved
+
+- **Authentication Flow**: Enhanced reliability of auth state management
+  - Better error handling and retry mechanisms for profile data fetching
+  - Improved debugging logs throughout the authentication flow
+  - More robust handling of edge cases in auth state transitions
+- **User Experience**: Smoother onboarding flow with better loading states
+  - Added proper loading indicators during profile data retrieval
+  - Reduced user confusion during authentication process
+
+### Technical
+
+- **Auth State Management**: Removed problematic initialized check in onAuthStateChange handler
+- **Profile Loading**: Added 3-second timeout with retry logic for profile fetching
+- **Error Resilience**: Better handling of temporary database connection issues
+
 ## [0.4.0] - 2025-01-25 - **MAJOR MILESTONE**
 
 ### Fixed

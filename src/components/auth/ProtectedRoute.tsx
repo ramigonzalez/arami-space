@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -13,10 +13,25 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, profile, loading, initialized } = useAuth();
   const location = useLocation();
+  const [profileTimeout, setProfileTimeout] = useState(false);
 
   // Derive booleans locally
   const isAuthenticated = !!user;
   const isOnboardingComplete = profile?.onboarding_completed || false;
+
+  // Set a timeout for profile loading when user is authenticated but profile is null
+  useEffect(() => {
+    if (isAuthenticated && !profile && initialized && !loading) {
+      const timer = setTimeout(() => {
+        console.log("ProtectedRoute - Profile loading timeout, proceeding with null profile assumption");
+        setProfileTimeout(true);
+      }, 3000); // Wait 3 seconds for profile to load
+
+      return () => clearTimeout(timer);
+    } else {
+      setProfileTimeout(false);
+    }
+  }, [isAuthenticated, profile, initialized, loading]);
 
   console.log("ProtectedRoute - State Check:", {
     path: location.pathname,
@@ -26,11 +41,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     isOnboardingComplete,
     userId: user?.id,
     profileExists: !!profile,
-    requireOnboarding
+    requireOnboarding,
+    profileTimeout
   });
 
-  // Show loading while auth is initializing
-  if (!initialized || loading) {
+  // Show loading while auth is initializing or profile is loading (with timeout)
+  if (!initialized || loading || (isAuthenticated && !profile && !profileTimeout)) {
     console.log("ProtectedRoute - Showing loading spinner");
     return (
       <div className="min-h-screen bg-arami-gradient flex items-center justify-center">

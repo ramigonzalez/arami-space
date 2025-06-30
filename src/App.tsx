@@ -34,7 +34,9 @@ const AppRouter: React.FC = () => {
       initialized,
       loading,
       hasUser: !!user,
-      userId: user?.id
+      userId: user?.id,
+      hasProfile: !!profile,
+      profileOnboardingComplete: profile?.onboarding_completed
     });
 
     if (!initialized || loading) {
@@ -54,9 +56,14 @@ const AppRouter: React.FC = () => {
       return <Navigate to="/" replace />;
     }
 
+    // If user exists but profile is null, assume onboarding is not complete
+    // This handles cases where profile fetch might have failed or is still loading
     const isOnboardingComplete = profile?.onboarding_completed || false;
     const redirectTo = isOnboardingComplete ? "/dashboard" : "/onboarding";
-    console.log("SmartRedirect - User found, redirecting to:", redirectTo);
+    console.log("SmartRedirect - User found, redirecting to:", redirectTo, {
+      hasProfile: !!profile,
+      onboardingComplete: isOnboardingComplete
+    });
     return <Navigate to={redirectTo} replace />;
   };
 

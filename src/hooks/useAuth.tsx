@@ -22,21 +22,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
-  // Helper to fetch profile safely
-  const fetchProfile = async (userId: string) => {
+  // Helper to fetch profile safely with retry logic
+  const fetchProfile = async (userId: string, retryCount = 0) => {
     try {
-      console.log('[useAuth] Fetching profile for user:', userId);
+      console.log('[useAuth] Fetching profile for user:', userId, 'attempt:', retryCount + 1);
       const profileResponse = await DatabaseService.getProfile(userId);
       if (profileResponse.success) {
         console.log('[useAuth] Profile fetch succeeded:', profileResponse.data);
         setProfile(profileResponse.data);
       } else {
         console.log('[useAuth] Profile fetch failed:', profileResponse.error);
-        setProfile(null);
+        
+        // If profile doesn't exist and this is a new user, retry a few times
+        // as the database trigger might still be creating the profile
+        if (profileResponse.error?.includes('No rows returned') && retryCount < 3) {
+          console.log('[useAuth] Profile not found, retrying in 1 second...');
+          setTimeout(() => {
+            fetchProfile(userId, retryCount + 1);
+          }, 1000);
+        } else {
+          setProfile(null);
+        }
       }
     } catch (error) {
       console.error('[useAuth] Profile fetch error:', error);
-      setProfile(null);
+      
+      // Retry on network errors for new users
+      if (retryCount < 3) {
+        console.log('[useAuth] Network error, retrying in 1 second...');
+        setTimeout(() => {
+          fetchProfile(userId, retryCount + 1);
+        }, 1000);
+      } else {
+        setProfile(null);
+      }
     }
   };
 
@@ -91,17 +110,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('[useAuth] onAuthStateChange fired:', { event, session });
         if (!mounted) return;
         
-        // Only handle subsequent auth changes, not the initial one
-        if (initialized) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchProfile(session.user.id);
-          } else {
-            setProfile(null);
-          }
+        // Handle all auth changes, not just after initialization
+        // This fixes the race condition where SIGNED_IN events might be missed
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          console.log('[useAuth] Fetching profile after auth state change');
+          await fetchProfile(session.user.id);
+        } else {
+          console.log('[useAuth] No user, clearing profile');
+          setProfile(null);
         }
+        
+        // Mark as initialized if not already done (using current state)
+        setLoading(false);
+        setInitialized(true);
       }
     );
 
