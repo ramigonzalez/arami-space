@@ -5,6 +5,21 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-01-30
+
+### Fixed
+
+- **Landing Page**: Updated background gradient to match current design system
+  - Fixed outdated gradient classes (`from-primary-900 via-primary-800 to-surface-900`)
+  - Updated to use consistent `bg-arami-gradient` class across all pages
+  - Landing page now matches the visual consistency of the rest of the application
+  - Fixed responsive container classes for proper layout
+
+### Technical
+
+- **Design System Consistency**: Aligned landing page with current Tailwind configuration
+- **Visual Consistency**: Ensured all pages use the same background gradient implementation
+
 ## [0.5.0] - 2025-01-30 - **MAJOR MILESTONE**
 
 ### Added
