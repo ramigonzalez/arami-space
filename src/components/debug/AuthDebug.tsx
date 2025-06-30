@@ -5,7 +5,7 @@ export const AuthDebug: React.FC = () => {
   const { user, session, profile, loading, initialized } = useAuth();
 
   // Only show in development
-  if (import.meta.env.PROD) {
+  if (import.meta.env.VITE_PROD) {
     return null;
   }
 
