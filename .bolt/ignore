@@ -14,12 +14,12 @@ postcss.config.js
 specs/api-documentation.md
 specs/arami-design-system.md
 specs/backend.md
-# specs/changelog.md
+specs/changelog.md
 specs/enhancements.md
 specs/marketing-plan.md
-# specs/memory.md
+specs/memory.md
 specs/prd.md
-# specs/project-plan.md
+specs/project-plan.md
 specs/schemas.md
 src/App.tsx
 src/components/auth/ProtectedRoute.tsx
@@ -30,6 +30,7 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
+src/components/layout/Navigation.tsx
 src/components/onboarding/AIDrivenSteps.tsx
 src/components/onboarding/CongratulationsStep.tsx
 src/components/onboarding/ConversationInterface.tsx
@@ -53,8 +54,12 @@ src/lib/supabase.ts
 src/main.tsx
 src/pages/Auth.tsx
 src/pages/Dashboard.tsx
-src/pages/Landing.tsx
+src/pages/Goals.tsx
+# src/pages/Landing.tsx
 src/pages/Onboarding.tsx
+src/pages/Profile.tsx
+src/pages/Sessions.tsx
+src/pages/Virtues.tsx
 src/types/onboarding.ts
 src/vite-env.d.ts
 supabase/functions/_shared/cors.ts
