@@ -5,6 +5,21 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2025-01-30
+
+### Changed
+
+- **Landing Page**: Removed header elements for cleaner presentation
+  - Removed "Arami Space" header bar from landing page
+  - Removed Bolt.new badge from landing page
+  - Header now only appears for authenticated users (dashboard, onboarding)
+  - Cleaner, more focused landing page experience
+
+### Technical
+
+- **Layout Component**: Made header conditional based on user authentication status
+- **Landing Page**: Simplified component by removing header-related elements
+
 ## [0.4.2] - 2025-01-30
 
 ### Fixed
