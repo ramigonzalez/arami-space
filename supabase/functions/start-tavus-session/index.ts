@@ -151,7 +151,7 @@ Deno.serve(async (req: Request) => {
     const tavusResponse = await fetch('https://tavusapi.com/v2/conversations', {
       method: 'POST',
       headers: {
-        'x-api-key': `Bearer ${Deno.env.get('TAVUS_API_KEY')}`,
+        'x-api-key': Deno.env.get('TAVUS_API_KEY') ?? '',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(tavusRequest),

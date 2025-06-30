@@ -29,7 +29,7 @@ Deno.serve(async (req: Request) => {
 
     const payload: TavusWebhookPayload = await req.json();
     
-    console.log('Received Tavus webhook:', payload);
+    console.log('Received Tavus webhook:', JSON.stringify(payload, null, 2));
 
     if (!payload.conversation_id) {
       return new Response(
