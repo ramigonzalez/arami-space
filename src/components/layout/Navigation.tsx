@@ -1,15 +1,12 @@
+import {
+  Award,
+  Home,
+  MessageCircle,
+  Target,
+  User
+} from 'lucide-react';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  Home, 
-  User, 
-  Target, 
-  MessageCircle, 
-  Award, 
-  Settings,
-  Calendar,
-  BarChart3
-} from 'lucide-react';
 
 interface NavigationProps {
   className?: string;

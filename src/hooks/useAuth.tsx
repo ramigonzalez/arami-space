@@ -1,5 +1,5 @@
 import { Session, User } from '@supabase/supabase-js';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { DatabaseService } from '../lib/database';
 import { supabase } from '../lib/supabase';
 
@@ -22,62 +22,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
-  // Helper to fetch profile safely with retry logic
-  const fetchProfile = async (userId: string, retryCount = 0): Promise<void> => {
-    try {
-      console.log('[useAuth] Fetching profile for user:', userId, 'attempt:', retryCount + 1);
-      
-      // Add timeout to prevent hanging requests
-      const profilePromise = DatabaseService.getProfile(userId);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000) // 10 second timeout
-      );
-      
-      const profileResponse = await Promise.race([profilePromise, timeoutPromise]) as any;
-      
-      if (profileResponse.success && profileResponse.data) {
-        console.log('[useAuth] Profile fetch succeeded:', profileResponse.data);
-        setProfile(profileResponse.data);
-        return; // Success - exit the function
-      } else {
-        console.log('[useAuth] Profile fetch failed:', profileResponse.error);
-        
-        // If profile doesn't exist and this is a new user, retry a few times
-        // as the database trigger might still be creating the profile
-        if (profileResponse.error?.includes('No rows returned') && retryCount < 3) {
-          console.log('[useAuth] Profile not found, retrying in 1 second...');
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-          return await fetchProfile(userId, retryCount + 1); // Recursive retry
-        } else {
-          console.log('[useAuth] Profile fetch failed permanently, setting profile to null');
-          setProfile(null);
-          
-          // If user doesn't exist in database but has a session, clear the session
-          if (profileResponse.error?.includes('No rows returned')) {
-            console.log('[useAuth] User not found in database, clearing stale session');
-            try {
-              await supabase.auth.signOut();
-            } catch (signOutError) {
-              console.error('[useAuth] Error clearing stale session:', signOutError);
-            }
-          }
-          return; // Failed permanently - exit the function
-        }
-      }
-    } catch (error) {
-      console.error('[useAuth] Profile fetch error:', error);
-      
-      // Retry on network errors for new users
-      if (retryCount < 3) {
-        console.log('[useAuth] Network error, retrying in 1 second...');
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-        return await fetchProfile(userId, retryCount + 1); // Recursive retry
-      } else {
-        console.log('[useAuth] Profile fetch failed permanently after network errors, setting profile to null');
-        setProfile(null);
-        return; // Failed permanently - exit the function
-      }
+  // Use refs to prevent race conditions and duplicate fetches
+  const mountedRef = useRef(true);
+  const initializationPromiseRef = useRef<Promise<void> | null>(null);
+  const profileCacheRef = useRef<{ [userId: string]: any }>({});
+  const activeProfileFetchRef = useRef<{ [userId: string]: Promise<any> }>({});
+
+  // Simplified profile fetch with caching and deduplication
+  const fetchProfile = async (userId: string): Promise<any> => {
+    if (!mountedRef.current) return null;
+
+    // Return cached profile if available
+    if (profileCacheRef.current[userId]) {
+      console.log('[useAuth] Returning cached profile for user:', userId);
+      setProfile(profileCacheRef.current[userId]);
+      return profileCacheRef.current[userId];
     }
+
+    // Return existing promise if fetch is already in progress
+    if (activeProfileFetchRef.current[userId] !== undefined) {
+      console.log('[useAuth] Profile fetch already in progress for user:', userId);
+      return activeProfileFetchRef.current[userId];
+    }
+
+    // Create new fetch promise
+    console.log('[useAuth] Fetching fresh profile for user:', userId);
+    const fetchPromise = DatabaseService.getProfile(userId)
+      .then(response => {
+        if (!mountedRef.current) return null;
+
+        if (response.success && response.data) {
+          console.log('[useAuth] Profile fetch succeeded:', response.data);
+          profileCacheRef.current[userId] = response.data;
+          setProfile(response.data);
+          return response.data;
+        } else {
+          console.log('[useAuth] Profile fetch failed:', response.error);
+          setProfile(null);
+          return null;
+        }
+      })
+      .catch(error => {
+        if (!mountedRef.current) return null;
+        console.error('[useAuth] Profile fetch error:', error);
+        setProfile(null);
+        return null;
+      })
+      .finally(() => {
+        // Clean up active fetch reference
+        delete activeProfileFetchRef.current[userId];
+      });
+
+    // Store the active fetch promise
+    activeProfileFetchRef.current[userId] = fetchPromise;
+    return fetchPromise;
   };
 
   // Function to refresh profile data
@@ -86,120 +84,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(null);
       return;
     }
+    // Clear cache and fetch fresh
+    delete profileCacheRef.current[user.id];
     await fetchProfile(user.id);
   };
 
-  useEffect(() => {
-    let mounted = true;
-    let authInitialized = false;
-    let profileFetchInProgress = false;
-    
-    // Longer safety timeout to ensure auth is always initialized
-    // This is especially important on page refresh
-    const safetyTimeout = setTimeout(() => {
-      if (mounted && !authInitialized) {
-        console.log('[useAuth] Safety timeout triggered, forcing auth initialization');
+  // Initialize auth state once
+  const initializeAuth = async (): Promise<void> => {
+    try {
+      console.log('[useAuth] Initializing auth...');
+      const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('[useAuth] Error getting initial session:', error);
+      }
+
+      if (!mountedRef.current) return;
+
+      console.log('[useAuth] Initial session:', initialSession);
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+      
+      if (initialSession?.user) {
+        console.log('[useAuth] User found in initial session, fetching profile...');
+        await fetchProfile(initialSession.user.id);
+      } else {
+        console.log('[useAuth] No user in initial session');
+        setProfile(null);
+      }
+
+      console.log('[useAuth] Auth initialization complete');
+      setLoading(false);
+      setInitialized(true);
+    } catch (error) {
+      console.error('[useAuth] Error initializing auth:', error);
+      if (mountedRef.current) {
         setLoading(false);
         setInitialized(true);
-        authInitialized = true;
       }
-    }, 15000); // Increased from 10 to 15 seconds to be more patient
-    
-    // Initialize auth state
-    const initializeAuth = async () => {
-      try {
-        console.log('[useAuth] Initializing auth...');
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('[useAuth] Error getting initial session:', error);
-        }
-        
-        if (mounted && !authInitialized) {
-          console.log('[useAuth] Initial session:', initialSession);
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
-          
-          if (initialSession?.user && !profileFetchInProgress) {
-            console.log('[useAuth] User found in initial session, fetching profile...');
-            profileFetchInProgress = true;
-            try {
-              await fetchProfile(initialSession.user.id);
-              console.log('[useAuth] Profile fetch completed during initialization');
-            } catch (profileError) {
-              console.error('[useAuth] Profile fetch failed during initialization:', profileError);
-              setProfile(null);
-            } finally {
-              profileFetchInProgress = false;
-            }
-          } else {
-            console.log('[useAuth] No user in initial session, setting profile to null');
-            setProfile(null);
-          }
-          
-          console.log('[useAuth] Auth initialization complete, setting loading=false, initialized=true');
-          setLoading(false);
-          setInitialized(true);
-          authInitialized = true;
-          clearTimeout(safetyTimeout); // Clear safety timeout on successful init
-        }
-      } catch (error) {
-        console.error('[useAuth] Error initializing auth:', error);
-        if (mounted && !authInitialized) {
-          console.log('[useAuth] Auth initialization failed, setting loading=false, initialized=true');
-          setLoading(false);
-          setInitialized(true);
-          authInitialized = true;
-          clearTimeout(safetyTimeout); // Clear safety timeout on failed init
-        }
-      }
-    };
+    }
+  };
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    // Prevent duplicate initialization (especially important for StrictMode)
+    if (!initializationPromiseRef.current) {
+      initializationPromiseRef.current = initializeAuth();
+    }
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('[useAuth] onAuthStateChange fired:', { event, session });
-        if (!mounted) return;
+        if (!mountedRef.current) return;
         
-        // Handle all auth changes, not just after initialization
-        // This fixes the race condition where SIGNED_IN events might be missed
+        // Wait for initial auth to complete before handling state changes
+        await initializationPromiseRef.current;
+        
+        if (!mountedRef.current) return;
+
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user && !profileFetchInProgress) {
+        if (session?.user) {
           console.log('[useAuth] Fetching profile after auth state change');
-          profileFetchInProgress = true;
-          try {
-            await fetchProfile(session.user.id);
-            console.log('[useAuth] Profile fetch completed after auth state change');
-          } catch (error) {
-            console.error('[useAuth] Profile fetch failed after auth state change:', error);
-            setProfile(null);
-          } finally {
-            profileFetchInProgress = false;
-          }
+          await fetchProfile(session.user.id);
         } else {
           console.log('[useAuth] No user, clearing profile');
           setProfile(null);
-        }
-        
-        // Mark as initialized and not loading (using current state)
-        if (!authInitialized) {
-          console.log('[useAuth] Auth state change complete, setting loading=false, initialized=true');
-          setLoading(false);
-          setInitialized(true);
-          authInitialized = true;
-          clearTimeout(safetyTimeout); // Clear safety timeout on auth state change
+          // Clear all cached profiles when user signs out
+          profileCacheRef.current = {};
         }
       }
     );
 
-    // Initialize auth state
-    initializeAuth();
-
     return () => {
-      mounted = false;
-      clearTimeout(safetyTimeout);
+      mountedRef.current = false;
       subscription.unsubscribe();
     };
   }, []); // Empty dependency array to prevent re-initialization
@@ -217,6 +178,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setSession(null);
         setProfile(null);
+        // Clear all cached profiles
+        profileCacheRef.current = {};
       } finally {
         setLoading(false);
       }
