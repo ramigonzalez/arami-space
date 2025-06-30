@@ -38,13 +38,14 @@ export class AuthService {
         email,
         password,
       });
-
+      console.log('[AuthService.signInWithEmail] signInWithPassword result:', { data, error });
       if (error) {
         return { success: false, error: error.message };
       }
-
+      console.log('[AuthService.signInWithEmail] returning success:', data);
       return { success: true, data };
     } catch (error) {
+      console.error('[AuthService.signInWithEmail] unexpected error:', error);
       return { success: false, error: 'An unexpected error occurred' };
     }
   }

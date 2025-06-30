@@ -56,11 +56,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setInitialized(false);
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[useAuth] onAuthStateChange fired:', { event, session });
         if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          try {
+            await fetchProfile(session.user.id);
+            console.log('[useAuth] Profile fetch succeeded for user:', session.user.id);
+          } catch (err) {
+            console.error('[useAuth] Profile fetch failed for user:', session.user.id, err);
+          }
         } else {
           setProfile(null);
         }

@@ -13,10 +13,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, profile, loading, initialized } = useAuth();
   const location = useLocation();
+  console.log("ProtectedRoute - location", location)
 
   // Derive booleans locally
   const isAuthenticated = !!user;
   const isOnboardingComplete = profile?.onboarding_completed || false;
+
+  console.log("ProtectedRoute - initialized", initialized)
+  console.log("ProtectedRoute - loading", loading)
 
   // Show loading while auth is initializing
   if (!initialized || loading) {
@@ -30,6 +34,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  console.log("ProtectedRoute - isAuthenticated", isAuthenticated)
   // Redirect to auth if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
