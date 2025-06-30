@@ -17,10 +17,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     location.pathname === '/auth' || 
     location.pathname === '/onboarding';
 
+  // Don't show header on landing page, auth page, or onboarding
+  const hideHeader = location.pathname === '/' || 
+    location.pathname === '/auth' || 
+    location.pathname === '/onboarding';
+
   return (
     <div className="min-h-screen bg-arami-gradient">
-      {/* Header - only show for authenticated users */}
-      {user && (
+      {/* Header - only show for authenticated users on main app pages */}
+      {user && !hideHeader && (
         <header className="px-4 pt-safe-top pb-4">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between">
