@@ -1,22 +1,23 @@
+import {
+    Award,
+    Brain,
+    Calendar,
+    Clock,
+    Flame,
+    Heart,
+    MessageCircle,
+    Play,
+    Settings,
+    Sparkles,
+    Target,
+    TrendingUp
+} from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { Card } from '../components/ui/Card';
+import { AuthDebug } from '../components/debug/AuthDebug';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { 
-  Calendar, 
-  Target, 
-  Award, 
-  Flame, 
-  MessageCircle, 
-  Settings,
-  TrendingUp,
-  Clock,
-  Heart,
-  Brain,
-  Sparkles,
-  Play
-} from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 
 interface DashboardData {
@@ -104,6 +105,9 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Debug component for testing */}
+      <AuthDebug />
+      
       {/* Welcome Section */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-white mb-2">

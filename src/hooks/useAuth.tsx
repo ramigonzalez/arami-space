@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('[useAuth] Fetching profile for user:', userId, 'attempt:', retryCount + 1);
       const profileResponse = await DatabaseService.getProfile(userId);
-      if (profileResponse.success) {
+      if (profileResponse.success && profileResponse.data) {
         console.log('[useAuth] Profile fetch succeeded:', profileResponse.data);
         setProfile(profileResponse.data);
         return; // Success - exit the function
@@ -83,15 +83,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let authInitialized = false;
     
-    // Safety timeout to ensure auth is always initialized
+    // Longer safety timeout to ensure auth is always initialized
+    // This is especially important on page refresh
     const safetyTimeout = setTimeout(() => {
-      if (mounted && !initialized) {
+      if (mounted && !authInitialized) {
         console.log('[useAuth] Safety timeout triggered, forcing auth initialization');
         setLoading(false);
         setInitialized(true);
+        authInitialized = true;
       }
-    }, 10000); // 10 second timeout
+    }, 15000); // Increased from 10 to 15 seconds to be more patient
     
     // Initialize auth state
     const initializeAuth = async () => {
@@ -103,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('[useAuth] Error getting initial session:', error);
         }
         
-        if (mounted) {
+        if (mounted && !authInitialized) {
           console.log('[useAuth] Initial session:', initialSession);
           setSession(initialSession);
           setUser(initialSession?.user ?? null);
@@ -112,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('[useAuth] User found in initial session, fetching profile...');
             try {
               await fetchProfile(initialSession.user.id);
+              console.log('[useAuth] Profile fetch completed during initialization');
             } catch (profileError) {
               console.error('[useAuth] Profile fetch failed during initialization:', profileError);
               setProfile(null);
@@ -124,14 +128,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('[useAuth] Auth initialization complete, setting loading=false, initialized=true');
           setLoading(false);
           setInitialized(true);
+          authInitialized = true;
           clearTimeout(safetyTimeout); // Clear safety timeout on successful init
         }
       } catch (error) {
         console.error('[useAuth] Error initializing auth:', error);
-        if (mounted) {
+        if (mounted && !authInitialized) {
           console.log('[useAuth] Auth initialization failed, setting loading=false, initialized=true');
           setLoading(false);
           setInitialized(true);
+          authInitialized = true;
           clearTimeout(safetyTimeout); // Clear safety timeout on failed init
         }
       }
@@ -163,10 +169,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         // Mark as initialized and not loading (using current state)
-        console.log('[useAuth] Auth state change complete, setting loading=false, initialized=true');
-        setLoading(false);
-        setInitialized(true);
-        clearTimeout(safetyTimeout); // Clear safety timeout on auth state change
+        if (!authInitialized) {
+          console.log('[useAuth] Auth state change complete, setting loading=false, initialized=true');
+          setLoading(false);
+          setInitialized(true);
+          authInitialized = true;
+          clearTimeout(safetyTimeout); // Clear safety timeout on auth state change
+        }
       }
     );
 
@@ -178,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
-  }, []);
+  }, []); // Empty dependency array to prevent re-initialization
 
   const value = {
     user,

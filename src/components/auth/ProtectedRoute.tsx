@@ -19,13 +19,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const isAuthenticated = !!user;
   const isOnboardingComplete = profile?.onboarding_completed || false;
 
-  // Set a timeout for profile loading when user is authenticated but profile is null
+  // Set a longer timeout for profile loading when user is authenticated but profile is null
+  // This is especially important on page refresh where profile fetching might take longer
   useEffect(() => {
     if (isAuthenticated && !profile && initialized && !loading) {
       const timer = setTimeout(() => {
         console.log("ProtectedRoute - Profile loading timeout, proceeding with null profile assumption");
         setProfileTimeout(true);
-      }, 3000); // Wait 3 seconds for profile to load
+      }, 8000); // Increased from 3 to 8 seconds to be more patient
 
       return () => clearTimeout(timer);
     } else {
@@ -39,7 +40,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       const authTimer = setTimeout(() => {
         console.log("ProtectedRoute - Auth initialization seems stuck, this might indicate a problem");
         // Don't force anything here, just log for debugging
-      }, 5000); // Wait 5 seconds for auth to initialize
+      }, 10000); // Increased timeout for auth initialization
 
       return () => clearTimeout(authTimer);
     }
@@ -58,6 +59,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   });
 
   // Show loading while auth is initializing or profile is loading (with timeout)
+  // Be more patient with profile loading, especially on page refresh
   if (!initialized || loading || (isAuthenticated && !profile && !profileTimeout)) {
     console.log("ProtectedRoute - Showing loading spinner");
     return (
@@ -78,7 +80,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // CRITICAL FIX: Only make onboarding decisions when we have profile data OR after timeout
   // This prevents the dashboard refresh bug where users get redirected to onboarding
-  // when their profile is still loading
+  // when their profile is still loading. Now with longer timeout to be more patient.
   if (profile || profileTimeout) {
     // Handle routing based on onboarding status and current path
     if (location.pathname === '/dashboard' && !isOnboardingComplete) {

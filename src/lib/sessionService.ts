@@ -47,17 +47,11 @@ export class SessionService {
   static async startFaceToFaceSession(userId: string): Promise<StartSessionResponse> {
     try {
       console.log('Starting face-to-face session for user:', userId);
-      
-      // Gather user context data
-      const userContext = await this.gatherUserContext(userId);
-      console.log('User context gathered:', userContext);
 
       // Call the start-tavus-session edge function
       const { data, error } = await supabase.functions.invoke('start-tavus-session', {
         body: {
-          userId,
-          sessionType: 'face_to_face',
-          userContext
+          user_id:userId
         }
       });
 
