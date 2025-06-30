@@ -92,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
     let authInitialized = false;
+    let profileFetchInProgress = false;
     
     // Longer safety timeout to ensure auth is always initialized
     // This is especially important on page refresh
@@ -119,14 +120,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(initialSession);
           setUser(initialSession?.user ?? null);
           
-          if (initialSession?.user) {
+          if (initialSession?.user && !profileFetchInProgress) {
             console.log('[useAuth] User found in initial session, fetching profile...');
+            profileFetchInProgress = true;
             try {
               await fetchProfile(initialSession.user.id);
               console.log('[useAuth] Profile fetch completed during initialization');
             } catch (profileError) {
               console.error('[useAuth] Profile fetch failed during initialization:', profileError);
               setProfile(null);
+            } finally {
+              profileFetchInProgress = false;
             }
           } else {
             console.log('[useAuth] No user in initial session, setting profile to null');
@@ -162,14 +166,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
+        if (session?.user && !profileFetchInProgress) {
           console.log('[useAuth] Fetching profile after auth state change');
+          profileFetchInProgress = true;
           try {
             await fetchProfile(session.user.id);
             console.log('[useAuth] Profile fetch completed after auth state change');
           } catch (error) {
             console.error('[useAuth] Profile fetch failed after auth state change:', error);
             setProfile(null);
+          } finally {
+            profileFetchInProgress = false;
           }
         } else {
           console.log('[useAuth] No user, clearing profile');
