@@ -6,6 +6,7 @@ import Onboarding from './pages/Onboarding';
 import { Dashboard } from './pages/Dashboard';
 import { Layout } from './components/layout/Layout';
 import { Landing } from './pages/Landing';
+import AuthCallback from './pages/AuthCallback';
 
 interface AppRouterProps {
   // Future props can be added here
@@ -35,6 +36,7 @@ const AppRouter: React.FC<AppRouterProps> = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );

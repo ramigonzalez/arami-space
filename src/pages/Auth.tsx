@@ -98,19 +98,20 @@ export const Auth: React.FC<AuthProps> = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [showVerification, setShowVerification] = useState(false);
   const [error, setError] = useState('');
-  // Handle navigation after successful authentication
-  const debouncedNavigate = React.useMemo(() => debounce((path: string) => navigate(path, { replace: true }), 150), [navigate]);
+  // Prevent double navigation
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   useEffect(() => {
-    if (!initialized || loading) return;
-    if (user) {
-      if (profile && profile.onboarding_completed) {
-        debouncedNavigate('/dashboard');
-      } else {
-        debouncedNavigate('/onboarding');
-      }
+    // Wait until everything is loaded and navigation hasn't happened yet
+    if (!initialized || loading || !user || !profile || hasNavigated) return;
+
+    if (profile.onboarding_completed) {
+      navigate('/dashboard', { replace: true });
+    } else {
+      navigate('/onboarding', { replace: true });
     }
-  }, [user, profile, initialized, loading, debouncedNavigate]);
+    setHasNavigated(true);
+  }, [user, profile, initialized, loading, hasNavigated, navigate]);
 
   const [success, setSuccess] = useState('');
 

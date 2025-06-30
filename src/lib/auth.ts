@@ -206,4 +206,22 @@ export class AuthService {
   static onAuthStateChange(callback: (event: string, session: any) => void) {
     return supabase.auth.onAuthStateChange(callback);
   }
+
+  static async resendConfirmationEmail(email: string): Promise<AuthResponse> {
+    try {
+      const { data, error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: 'Failed to resend confirmation email.' };
+    }
+  }
 }
