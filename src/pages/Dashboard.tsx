@@ -13,7 +13,6 @@ import {
     TrendingUp
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { AuthDebug } from '../components/debug/AuthDebug';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -105,9 +104,6 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Debug component for testing */}
-      <AuthDebug />
-      
       {/* Welcome Section */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-white mb-2">
