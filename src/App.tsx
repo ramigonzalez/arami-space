@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { AuthDebug } from './components/debug/AuthDebug';
 import { Layout } from './components/layout/Layout';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Auth from './pages/Auth';
@@ -91,6 +92,7 @@ const AppRouter: React.FC = () => {
         <Route path="/" element={<Landing />} />
         <Route path="*" element={<SmartRedirect />} />
       </Routes>
+      <AuthDebug />
     </Layout>
   );
 };

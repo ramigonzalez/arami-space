@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added timeout handling in ProtectedRoute for profile loading scenarios
   - Users now properly navigate to onboarding page after successful sign-in
   - Eliminated cases where authenticated users would be stuck without navigation
+- **CRITICAL**: Infinite loading spinner when accessing /onboarding without active session
+  - Fixed async retry logic in fetchProfile function that was causing auth state to never initialize
+  - Added automatic stale session cleanup when user doesn't exist in database
+  - Added 10-second safety timeout to ensure auth state is always initialized
+  - Fixed cases where invalid/expired sessions would cause infinite loading states
 
 ### Improved
 
@@ -22,15 +27,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Better error handling and retry mechanisms for profile data fetching
   - Improved debugging logs throughout the authentication flow
   - More robust handling of edge cases in auth state transitions
+  - Proper async/await handling in profile fetch retries
 - **User Experience**: Smoother onboarding flow with better loading states
   - Added proper loading indicators during profile data retrieval
   - Reduced user confusion during authentication process
+  - Added development debug component for troubleshooting auth issues
+- **Error Resilience**: Better handling of database inconsistencies
+  - Automatic cleanup of stale sessions when user data is missing
+  - Graceful fallbacks when profile fetch fails permanently
 
 ### Technical
 
 - **Auth State Management**: Removed problematic initialized check in onAuthStateChange handler
 - **Profile Loading**: Added 3-second timeout with retry logic for profile fetching
 - **Error Resilience**: Better handling of temporary database connection issues
+- **Async Flow**: Fixed Promise handling in retry mechanisms to prevent state management issues
+- **Safety Mechanisms**: Added multiple timeout safeguards to prevent infinite loading states
 
 ## [0.4.0] - 2025-01-25 - **MAJOR MILESTONE**
 

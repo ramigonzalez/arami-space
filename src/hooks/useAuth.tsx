@@ -23,13 +23,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [initialized, setInitialized] = useState(false);
 
   // Helper to fetch profile safely with retry logic
-  const fetchProfile = async (userId: string, retryCount = 0) => {
+  const fetchProfile = async (userId: string, retryCount = 0): Promise<void> => {
     try {
       console.log('[useAuth] Fetching profile for user:', userId, 'attempt:', retryCount + 1);
       const profileResponse = await DatabaseService.getProfile(userId);
       if (profileResponse.success) {
         console.log('[useAuth] Profile fetch succeeded:', profileResponse.data);
         setProfile(profileResponse.data);
+        return; // Success - exit the function
       } else {
         console.log('[useAuth] Profile fetch failed:', profileResponse.error);
         
@@ -37,11 +38,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // as the database trigger might still be creating the profile
         if (profileResponse.error?.includes('No rows returned') && retryCount < 3) {
           console.log('[useAuth] Profile not found, retrying in 1 second...');
-          setTimeout(() => {
-            fetchProfile(userId, retryCount + 1);
-          }, 1000);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+          return await fetchProfile(userId, retryCount + 1); // Recursive retry
         } else {
+          console.log('[useAuth] Profile fetch failed permanently, setting profile to null');
           setProfile(null);
+          
+          // If user doesn't exist in database but has a session, clear the session
+          if (profileResponse.error?.includes('No rows returned')) {
+            console.log('[useAuth] User not found in database, clearing stale session');
+            try {
+              await supabase.auth.signOut();
+            } catch (signOutError) {
+              console.error('[useAuth] Error clearing stale session:', signOutError);
+            }
+          }
+          return; // Failed permanently - exit the function
         }
       }
     } catch (error) {
@@ -50,11 +62,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Retry on network errors for new users
       if (retryCount < 3) {
         console.log('[useAuth] Network error, retrying in 1 second...');
-        setTimeout(() => {
-          fetchProfile(userId, retryCount + 1);
-        }, 1000);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+        return await fetchProfile(userId, retryCount + 1); // Recursive retry
       } else {
+        console.log('[useAuth] Profile fetch failed permanently after network errors, setting profile to null');
         setProfile(null);
+        return; // Failed permanently - exit the function
       }
     }
   };
@@ -70,6 +83,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    
+    // Safety timeout to ensure auth is always initialized
+    const safetyTimeout = setTimeout(() => {
+      if (mounted && !initialized) {
+        console.log('[useAuth] Safety timeout triggered, forcing auth initialization');
+        setLoading(false);
+        setInitialized(true);
+      }
+    }, 10000); // 10 second timeout
     
     // Initialize auth state
     const initializeAuth = async () => {
@@ -87,19 +109,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(initialSession?.user ?? null);
           
           if (initialSession?.user) {
-            await fetchProfile(initialSession.user.id);
+            console.log('[useAuth] User found in initial session, fetching profile...');
+            try {
+              await fetchProfile(initialSession.user.id);
+            } catch (profileError) {
+              console.error('[useAuth] Profile fetch failed during initialization:', profileError);
+              setProfile(null);
+            }
           } else {
+            console.log('[useAuth] No user in initial session, setting profile to null');
             setProfile(null);
           }
           
+          console.log('[useAuth] Auth initialization complete, setting loading=false, initialized=true');
           setLoading(false);
           setInitialized(true);
+          clearTimeout(safetyTimeout); // Clear safety timeout on successful init
         }
       } catch (error) {
         console.error('[useAuth] Error initializing auth:', error);
         if (mounted) {
+          console.log('[useAuth] Auth initialization failed, setting loading=false, initialized=true');
           setLoading(false);
           setInitialized(true);
+          clearTimeout(safetyTimeout); // Clear safety timeout on failed init
         }
       }
     };
@@ -117,15 +150,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           console.log('[useAuth] Fetching profile after auth state change');
-          await fetchProfile(session.user.id);
+          try {
+            await fetchProfile(session.user.id);
+            console.log('[useAuth] Profile fetch completed after auth state change');
+          } catch (error) {
+            console.error('[useAuth] Profile fetch failed after auth state change:', error);
+            setProfile(null);
+          }
         } else {
           console.log('[useAuth] No user, clearing profile');
           setProfile(null);
         }
         
-        // Mark as initialized if not already done (using current state)
+        // Mark as initialized and not loading (using current state)
+        console.log('[useAuth] Auth state change complete, setting loading=false, initialized=true');
         setLoading(false);
         setInitialized(true);
+        clearTimeout(safetyTimeout); // Clear safety timeout on auth state change
       }
     );
 
@@ -134,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mounted = false;
+      clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
   }, []);

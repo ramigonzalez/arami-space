@@ -33,6 +33,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }, [isAuthenticated, profile, initialized, loading]);
 
+  // Add a timeout for auth initialization to prevent infinite loading
+  useEffect(() => {
+    if (!initialized && !loading) {
+      const authTimer = setTimeout(() => {
+        console.log("ProtectedRoute - Auth initialization seems stuck, this might indicate a problem");
+        // Don't force anything here, just log for debugging
+      }, 5000); // Wait 5 seconds for auth to initialize
+
+      return () => clearTimeout(authTimer);
+    }
+  }, [initialized, loading]);
+
   console.log("ProtectedRoute - State Check:", {
     path: location.pathname,
     initialized,
