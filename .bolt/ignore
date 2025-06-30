@@ -1,10 +1,7 @@
 # ==== BOLT-ASSISTANT AUTO-GENERATED START ====
 # WARNING: This section is managed automatically by Bolt Assistant – any manual edits here will be overwritten.
-.bolt/assets/index-CD9BoZjM.js
-.bolt/assets/index-sWsB3UQd.css
 .bolt/config.json
 .bolt/ignore
-.bolt/index.html
 .bolt/prompt
 .env
 .gitignore
@@ -32,9 +29,9 @@ src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
 src/components/layout/Layout.tsx
-# src/components/onboarding/AIDrivenSteps.tsx
+src/components/onboarding/AIDrivenSteps.tsx
 src/components/onboarding/CongratulationsStep.tsx
-# src/components/onboarding/ConversationInterface.tsx
+src/components/onboarding/ConversationInterface.tsx
 src/components/onboarding/ProgressIndicator.tsx
 src/components/onboarding/WelcomeStep.tsx
 src/components/ui/Badge.tsx
@@ -54,6 +51,7 @@ src/lib/elevenlabs.ts
 src/lib/supabase.ts
 src/main.tsx
 src/pages/Auth.tsx
+src/pages/AuthCallback.tsx
 src/pages/Dashboard.tsx
 src/pages/Landing.tsx
 src/pages/Onboarding.tsx
