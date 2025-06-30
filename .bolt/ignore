@@ -36,6 +36,7 @@ src/components/onboarding/CongratulationsStep.tsx
 src/components/onboarding/ConversationInterface.tsx
 src/components/onboarding/ProgressIndicator.tsx
 src/components/onboarding/WelcomeStep.tsx
+src/components/profile/RitualPreferencesForm.tsx
 src/components/ui/Badge.tsx
 src/components/ui/Button.tsx
 src/components/ui/Card.tsx
@@ -43,13 +44,14 @@ src/components/ui/Input.tsx
 src/components/ui/Modal.tsx
 src/data/onboardingMessages.ts
 src/hooks/useAuth.tsx
-src/hooks/useOnboardingConversation.ts
+# src/hooks/useOnboardingConversation.ts
 src/hooks/useOnboardingData.ts
 src/hooks/useVoiceRecording.ts
 src/index.css
 src/lib/auth.ts
-src/lib/database.ts
+# src/lib/database.ts
 src/lib/elevenlabs.ts
+# src/lib/ritualPreferencesService.ts
 # src/lib/supabase.ts
 src/main.tsx
 src/pages/Auth.tsx
@@ -57,10 +59,10 @@ src/pages/Dashboard.tsx
 src/pages/Goals.tsx
 src/pages/Landing.tsx
 src/pages/Onboarding.tsx
-# src/pages/Profile.tsx
-src/pages/Sessions.tsx
+src/pages/Profile.tsx
+# src/pages/Sessions.tsx
 src/pages/Virtues.tsx
-src/types/onboarding.ts
+# src/types/onboarding.ts
 src/vite-env.d.ts
 supabase/functions/_shared/cors.ts
 supabase/functions/auth-magic-link/index.ts
