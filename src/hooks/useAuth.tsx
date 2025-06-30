@@ -26,7 +26,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (userId: string, retryCount = 0): Promise<void> => {
     try {
       console.log('[useAuth] Fetching profile for user:', userId, 'attempt:', retryCount + 1);
-      const profileResponse = await DatabaseService.getProfile(userId);
+      
+      // Add timeout to prevent hanging requests
+      const profilePromise = DatabaseService.getProfile(userId);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000) // 10 second timeout
+      );
+      
+      const profileResponse = await Promise.race([profilePromise, timeoutPromise]) as any;
+      
       if (profileResponse.success && profileResponse.data) {
         console.log('[useAuth] Profile fetch succeeded:', profileResponse.data);
         setProfile(profileResponse.data);

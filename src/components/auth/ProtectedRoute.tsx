@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -13,38 +13,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, profile, loading, initialized } = useAuth();
   const location = useLocation();
-  const [profileTimeout, setProfileTimeout] = useState(false);
 
   // Derive booleans locally
   const isAuthenticated = !!user;
   const isOnboardingComplete = profile?.onboarding_completed || false;
-
-  // Set a longer timeout for profile loading when user is authenticated but profile is null
-  // This is especially important on page refresh where profile fetching might take longer
-  useEffect(() => {
-    if (isAuthenticated && !profile && initialized && !loading) {
-      const timer = setTimeout(() => {
-        console.log("ProtectedRoute - Profile loading timeout, proceeding with null profile assumption");
-        setProfileTimeout(true);
-      }, 8000); // Increased from 3 to 8 seconds to be more patient
-
-      return () => clearTimeout(timer);
-    } else {
-      setProfileTimeout(false);
-    }
-  }, [isAuthenticated, profile, initialized, loading]);
-
-  // Add a timeout for auth initialization to prevent infinite loading
-  useEffect(() => {
-    if (!initialized && !loading) {
-      const authTimer = setTimeout(() => {
-        console.log("ProtectedRoute - Auth initialization seems stuck, this might indicate a problem");
-        // Don't force anything here, just log for debugging
-      }, 10000); // Increased timeout for auth initialization
-
-      return () => clearTimeout(authTimer);
-    }
-  }, [initialized, loading]);
 
   console.log("ProtectedRoute - State Check:", {
     path: location.pathname,
@@ -54,14 +26,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     isOnboardingComplete,
     userId: user?.id,
     profileExists: !!profile,
-    requireOnboarding,
-    profileTimeout
+    profileIsNull: profile === null,
+    requireOnboarding
   });
 
-  // Show loading while auth is initializing or profile is loading (with timeout)
-  // Be more patient with profile loading, especially on page refresh
-  if (!initialized || loading || (isAuthenticated && !profile && !profileTimeout)) {
-    console.log("ProtectedRoute - Showing loading spinner");
+  // Show loading while auth is initializing
+  if (!initialized || loading) {
+    console.log("ProtectedRoute - Auth still initializing, showing loading spinner");
     return (
       <div className="min-h-screen bg-arami-gradient flex items-center justify-center">
         <div className="text-center">
@@ -78,32 +49,48 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // CRITICAL FIX: Only make onboarding decisions when we have profile data OR after timeout
-  // This prevents the dashboard refresh bug where users get redirected to onboarding
-  // when their profile is still loading. Now with longer timeout to be more patient.
-  if (profile || profileTimeout) {
-    // Handle routing based on onboarding status and current path
+  // For authenticated users, handle profile loading states
+  if (isAuthenticated && profile === undefined) {
+    // Profile is still loading (undefined means not yet fetched)
+    console.log("ProtectedRoute - User authenticated but profile still loading, continuing to wait");
+    return (
+      <div className="min-h-screen bg-arami-gradient flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/80">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // At this point, we either have profile data or profile is explicitly null (fetch failed)
+  if (profile) {
+    // We have profile data, make routing decisions based on onboarding status
     if (location.pathname === '/dashboard' && !isOnboardingComplete) {
-      // User trying to access dashboard but hasn't completed onboarding
       console.log("ProtectedRoute - Dashboard access without onboarding, redirecting to onboarding");
       return <Navigate to="/onboarding" replace />;
     }
 
     if (location.pathname === '/onboarding' && isOnboardingComplete) {
-      // User trying to access onboarding but has already completed it
       console.log("ProtectedRoute - Onboarding complete, redirecting to dashboard");
       return <Navigate to="/dashboard" replace />;
     }
 
-    // Redirect to onboarding if required and not completed
     if (requireOnboarding && !isOnboardingComplete) {
       console.log("ProtectedRoute - Onboarding required but not complete, redirecting");
       return <Navigate to="/onboarding" replace />;
     }
-  } else {
-    // Profile is still loading, don't make any onboarding-based redirects yet
-    // Just ensure the user stays on a valid authenticated page
-    console.log("ProtectedRoute - Profile still loading, allowing access to current page");
+  } else if (profile === null) {
+    // Profile fetch failed, but user is authenticated
+    // This is an edge case - allow access but log for debugging
+    console.log("ProtectedRoute - Profile fetch failed but user is authenticated, allowing access");
+    
+    // If they're trying to access dashboard without a profile, redirect to onboarding
+    // as a safety measure
+    if (location.pathname === '/dashboard') {
+      console.log("ProtectedRoute - No profile but accessing dashboard, redirecting to onboarding as safety measure");
+      return <Navigate to="/onboarding" replace />;
+    }
   }
 
   console.log("ProtectedRoute - All checks passed, rendering children");
