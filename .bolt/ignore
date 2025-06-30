@@ -1,4 +1,4 @@
-# ==== BOLT-ASSISTANT AUTO-GENERATED START ====
+## ==== BOLT-ASSISTANT AUTO-GENERATED START ====
 # WARNING: This section is managed automatically by Bolt Assistant – any manual edits here will be overwritten.
 .bolt/config.json
 .bolt/ignore
@@ -11,16 +11,16 @@ index.html
 package-lock.json
 package.json
 postcss.config.js
-specs/api-documentation.md
+# specs/api-documentation.md
 specs/arami-design-system.md
 specs/backend.md
-specs/changelog.md
-specs/enhancements.md
+# specs/changelog.md
+# specs/enhancements.md
 specs/marketing-plan.md
-specs/memory.md
+# specs/memory.md
 specs/prd.md
-specs/project-plan.md
-specs/schemas.md
+# specs/project-plan.md
+# specs/schemas.md
 src/App.tsx
 src/components/auth/ProtectedRoute.tsx
 src/components/debug/AuthDebug.tsx
