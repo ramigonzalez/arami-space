@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -68,21 +67,17 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-300"></div>
         </div>
-      </Layout>
     );
   }
 
   if (!dashboardData) {
     return (
-      <Layout>
         <div className="text-center py-12">
           <p className="text-white/60">Unable to load dashboard data</p>
         </div>
-      </Layout>
     );
   }
 
