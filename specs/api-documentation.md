@@ -1,287 +1,214 @@
 # API Documentation
 
-## Authentication Endpoints
+## Supabase Edge Functions
 
-### Magic Link Authentication
+### 1. start-tavus-session
 
-#### POST /functions/v1/auth-magic-link
+**Endpoint**: `POST /functions/v1/start-tavus-session`
 
-Send a magic link to the user's email for passwordless authentication.
-
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "redirectTo": "https://yourapp.com/auth/callback"
-}
-```
-
-**Response (Success - 200):**
-```json
-{
-  "message": "Magic link sent successfully",
-  "email": "user@example.com"
-}
-```
-
-**Response (Error - 400):**
-```json
-{
-  "error": "Valid email is required"
-}
-```
-
-**Response (Error - 500):**
-```json
-{
-  "error": "Failed to send magic link"
-}
-```
-
-### Phone Authentication
-
-#### POST /functions/v1/auth-phone
-
-Handle phone number authentication including OTP sending and verification.
-
-**Send OTP Request:**
-```json
-{
-  "phone": "+1234567890",
-  "action": "send_otp"
-}
-```
-
-**Send OTP Response (Success - 200):**
-```json
-{
-  "message": "SMS code sent successfully",
-  "phone": "+1234567890"
-}
-```
-
-**Verify OTP Request:**
-```json
-{
-  "phone": "+1234567890",
-  "action": "verify_otp",
-  "token": "123456"
-}
-```
-
-**Verify OTP Response (Success - 200):**
-```json
-{
-  "message": "Phone verified successfully",
-  "user": {
-    "id": "user-uuid",
-    "phone": "+1234567890",
-    "email": null
-  },
-  "session": {
-    "access_token": "jwt-token",
-    "refresh_token": "refresh-token",
-    "expires_in": 3600
-  }
-}
-```
-
-**Error Responses:**
-```json
-{
-  "error": "Valid phone number with country code is required"
-}
-```
-
-```json
-{
-  "error": "Invalid verification code"
-}
-```
-
-## Frontend Authentication Service
-
-### AuthService Class Methods
-
-#### Email/Password Authentication
-
-```typescript
-// Sign up with email and password
-AuthService.signUpWithEmail(email: string, password: string): Promise<AuthResponse>
-
-// Sign in with email and password
-AuthService.signInWithEmail(email: string, password: string): Promise<AuthResponse>
-```
-
-#### Magic Link Authentication
-
-```typescript
-// Send magic link to email
-AuthService.sendMagicLink(email: string): Promise<AuthResponse>
-```
-
-#### Phone Authentication
-
-```typescript
-// Send OTP to phone number
-AuthService.sendPhoneOTP(phone: string): Promise<AuthResponse>
-
-// Verify OTP code
-AuthService.verifyPhoneOTP(phone: string, token: string): Promise<AuthResponse>
-```
-
-#### General Methods
-
-```typescript
-// Sign out current user
-AuthService.signOut(): Promise<AuthResponse>
-
-// Get current authenticated user
-AuthService.getCurrentUser(): Promise<AuthResponse>
-
-// Listen to authentication state changes
-AuthService.onAuthStateChange(callback: (event: string, session: any) => void)
-```
-
-### AuthResponse Interface
-
-```typescript
-interface AuthResponse {
-  success: boolean;
-  error?: string;
-  data?: any;
-}
-```
-
-## Error Handling
-
-All authentication endpoints return consistent error responses:
-
-- **400 Bad Request**: Invalid input data or missing required fields
-- **405 Method Not Allowed**: Incorrect HTTP method used
-- **500 Internal Server Error**: Server-side processing errors
-
-## Rate Limiting
-
-- Magic link requests: Limited to prevent email spam
-- SMS OTP requests: Limited to prevent SMS abuse
-- Verification attempts: Limited to prevent brute force attacks
-
-## Security Features
-
-- CORS properly configured for cross-origin requests
-- Input validation and sanitization
-- Phone number format validation (must include country code)
-- Email format validation
-- Secure session management through Supabase Auth
-- Row Level Security (RLS) enabled on all user data
-
-## Edge Functions
-
-### elevenlabs-signed-url
-
-**Purpose**: Generates secure signed WebSocket URLs for ElevenLabs Conversational AI
-
-**Endpoint**: `POST /functions/v1/elevenlabs-signed-url`
+**Description**: Initiates a new Tavus video conversation with comprehensive user context.
 
 **Request Body**:
-```json
+```typescript
 {
-  "agent_id": "genesis-onboarding",
-  "user_context": {
-    "name": "string",
-    "language": "string", 
-    "gender": "string"
-  }
+  user_id: string;
+  persona_id: string;
 }
 ```
 
 **Response**:
-```json
+```typescript
 {
-  "signed_url": "wss://...",
-  "conversation_id": "string",
-  "expires_at": "timestamp"
+  success: boolean;
+  conversation_url: string;
+  conversation_id: string;
+  mentor_conversation_id: string;
+  daily_session_id: string;
+  persona_name: string;
 }
 ```
 
-**Security**: 
-- Requires ELEVENLABS_API_KEY environment variable
-- Returns time-limited signed URLs
-- Validates user authentication
+**Process**:
+1. Fetches user profile, onboarding data, ritual preferences, emotional categories, and goals
+2. Builds conversational context for AI mentor
+3. Creates Tavus conversation via API
+4. Records session in mentor_conversations and daily_sessions tables
+5. Returns conversation URL and session identifiers
 
-**Usage**: Called from onboarding flow to establish voice conversations with personalized context
+**Error Handling**:
+- 400: Missing required parameters
+- 500: Database errors, Tavus API errors
 
-## ElevenLabs Text-to-Speech Integration
+---
 
-### POST /functions/v1/elevenlabs-tts
+### 2. end-tavus-session
 
-Secure proxy for ElevenLabs Text-to-Speech API that handles API key authentication server-side.
+**Endpoint**: `POST /functions/v1/end-tavus-session`
 
-**Request Body:**
-```json
+**Description**: Terminates a Tavus video conversation and updates session records.
+
+**Request Body**:
+```typescript
 {
-  "text": "Hello, welcome to your emotional intelligence journey!",
-  "voice_id": "pNInz6obpgDQGcFmaJgB",
-  "model_id": "eleven_multilingual_v2",
-  "voice_settings": {
-    "stability": 0.5,
-    "similarity_boost": 0.8,
-    "style": 0.0,
-    "use_speaker_boost": true
-  }
+  tavus_conversation_id: string;
+  mentor_conversation_id: string;
+  daily_session_id: string;
+  user_id: string;
 }
 ```
 
-**Response (Success - 200):**
-```json
+**Response**:
+```typescript
 {
-  "success": true,
-  "audio_base64": "UklGRiQAAABXQVZFZm10IBAAAAABAAEA..."
+  success: boolean;
+  duration_seconds: number;
+  message: string;
 }
 ```
 
-**Response (Error - 400):**
-```json
+**Process**:
+1. Calls Tavus API to end conversation
+2. Calculates session duration
+3. Updates mentor_conversations table with end_time and duration
+4. Updates daily_sessions table with completion data
+
+**Error Handling**:
+- 400: Missing required parameters
+- 500: Database errors, Tavus API errors (continues with DB updates)
+
+---
+
+### 3. tavus-webhook
+
+**Endpoint**: `POST /functions/v1/tavus-webhook`
+
+**Description**: Processes webhooks from Tavus with post-session data.
+
+**Request Body** (from Tavus):
+```typescript
 {
-  "success": false,
-  "error": "Text and voice_id are required"
+  conversation_id: string;
+  event_type: string;
+  transcript?: string;
+  recording_url?: string;
+  duration?: number;
+  participant_count?: number;
+  metadata?: any;
 }
 ```
 
-**Response (Error - 503):**
-```json
+**Response**:
+```typescript
 {
-  "success": false,
-  "error": "ElevenLabs service not configured"
+  success: boolean;
+  message: string;
 }
 ```
 
-**Voice IDs Available:**
-- `pNInz6obpgDQGcFmaJgB` - Confident Coach (Adam)
-- `EXAVITQu4vr4xnSDxMaL` - Warm Friend (Bella)
-- `ThT5KcBeYPX3keUQqHPh` - Gentle Guide (Dorothy)
-- `onwK4e9ZLuTAKqWW03F9` - Wise Mentor (Daniel)
+**Supported Event Types**:
+- `conversation_ended`: Updates session with final data
+- `transcript_ready`: Stores conversation transcript
+- `conversation_started`: Updates session status
 
-**Rate Limiting:**
-- Inherits ElevenLabs API rate limits
-- Text length limited to 5000 characters per request
+**Process**:
+1. Finds mentor conversation by tavus_conversation_id
+2. Locates corresponding daily session
+3. Updates session records based on event type
+4. Stores transcript and metadata when available
 
-**Security Features:**
-- API key stored securely as Supabase Edge Function secret
-- CORS properly configured for cross-origin requests
-- Input validation and sanitization
-- Error handling with appropriate HTTP status codes
+---
 
-## Environment Variables
+## Frontend Services
 
-Required environment variables for the application:
+### sessionService
 
-- `VITE_SUPABASE_URL`: Supabase project URL
-- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous/public key
+**Location**: `src/lib/sessionService.ts`
 
-Edge functions automatically have access to:
-- `SUPABASE_URL`: Supabase project URL
-- `SUPABASE_SERVICE_ROLE_KEY`: Service role key for admin operations
-- `SUPABASE_ANON_KEY`: Anonymous key for client operations
-- `SUPABASE_DB_URL`: Direct database connection string
+#### Methods:
+
+**startTavusSession(userId: string, personaId: string)**
+- Calls start-tavus-session Edge Function
+- Returns session data for video call initiation
+- Handles errors and provides user-friendly messages
+
+**endTavusSession(tavusConversationId, mentorConversationId, dailySessionId, userId)**
+- Calls end-tavus-session Edge Function
+- Returns session completion data
+- Handles cleanup and error scenarios
+
+**getUserPersonas(userId: string)**
+- Fetches user's available AI mentor personas
+- Includes mentor avatar data and specializations
+- Filters for active personas only
+
+**getActiveMentorAvatars()**
+- Fetches all available mentor avatars
+- Used for persona creation and selection
+- Returns avatar metadata and premium status
+
+---
+
+## Database Tables Used
+
+### mentor_conversations
+- Tracks Tavus conversation lifecycle
+- Links to user_personas and daily_sessions
+- Stores conversation metadata and duration
+
+### daily_sessions
+- Records session completion and analytics
+- Stores conversation transcripts from webhooks
+- Tracks session type and status
+
+### user_personas
+- User's personalized AI mentors
+- Links to mentor_avatars for visual representation
+- Contains Tavus persona_id and replica_id
+
+### mentor_avatars
+- Available AI mentor templates
+- Includes visual assets and descriptions
+- Premium/free tier classification
+
+---
+
+## External APIs
+
+### Tavus API
+
+**Base URL**: `https://tavusapi.com/v2`
+
+**Authentication**: Bearer token via `TAVUS_API_KEY` environment variable
+
+**Endpoints Used**:
+
+1. **POST /conversations** - Create new conversation
+2. **POST /conversations/{id}/end** - End conversation
+3. **Webhook callbacks** - Receive post-session data
+
+**Required Environment Variables**:
+- `TAVUS_API_KEY`: API key for Tavus service
+- `SUPABASE_URL`: Webhook callback base URL
+- `SUPABASE_SERVICE_ROLE_KEY`: Database access for Edge Functions
+
+---
+
+## Error Handling Patterns
+
+### Edge Functions
+- Consistent CORS headers for all responses
+- Structured error responses with descriptive messages
+- Graceful degradation when external APIs fail
+- Comprehensive logging for debugging
+
+### Frontend Services
+- User-friendly error messages
+- Retry mechanisms for transient failures
+- Loading states during API calls
+- Fallback UI for error scenarios
+
+### Database Operations
+- Proper RLS policy enforcement
+- Transaction-like operations for data consistency
+- Null checks and default values
+- Foreign key constraint handling
