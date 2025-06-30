@@ -21,6 +21,9 @@ interface TavusConversationRequest {
     max_call_duration: number;
     participant_left_timeout: number;
     participant_absent_timeout: number;
+    enable_closed_captions: boolean;
+    apply_greenscreen: boolean;
+    language: string;
   };
 }
 
@@ -35,11 +38,11 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { user_id, persona_id }: StartSessionRequest = await req.json();
+    const { user_id }: StartSessionRequest = await req.json();
 
-    if (!user_id || !persona_id) {
+    if (!user_id) {
       return new Response(
-        JSON.stringify({ error: 'Missing user_id or persona_id' }),
+        JSON.stringify({ error: 'Missing user_id' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -82,18 +85,6 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', user_id)
       .eq('status', 'active');
 
-    // Get user persona details
-    const { data: userPersona, error: personaError } = await supabaseClient
-      .from('user_personas')
-      .select('*')
-      .eq('id', persona_id)
-      .eq('user_id', user_id)
-      .single();
-
-    if (personaError) {
-      throw new Error(`Failed to fetch user persona: ${personaError.message}`);
-    }
-
     // Build conversational context
     const contextParts = [
       `User Profile: ${profile.full_name}, Language: ${profile.language}`,
@@ -126,17 +117,33 @@ Deno.serve(async (req: Request) => {
 
     const conversationalContext = contextParts.filter(Boolean).join('. ');
 
+    // Map language codes to full language names for Tavus API
+    const languageMap: { [key: string]: string } = {
+      'en': 'english',
+      'es': 'spanish',
+      'pt': 'portuguese',
+      'fr': 'french'
+    };
+
+    const tavusLanguage = languageMap[profile.language] || 'english';
+
+    const PERSONA_ID = 'p1c81be642e7'; // HARDCODED: Growth Mentor with Tools
+    const REPLICA_ID = 'r6ca16dbe104'; // HARDCODED: Mary
+
     // Prepare Tavus API request
     const tavusRequest: TavusConversationRequest = {
-      replica_id: userPersona.replica_id,
-      persona_id: userPersona.tavus_persona_id,
+      persona_id: PERSONA_ID,
+      replica_id: REPLICA_ID,
       callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/tavus-webhook`,
       conversation_name: `Face-to-Face Session - ${profile.full_name}`,
-      conversational_context,
+      conversational_context: conversationalContext,
       properties: {
-        max_call_duration: 1800, // 30 minutes
-        participant_left_timeout: 60,
-        participant_absent_timeout: 300
+        max_call_duration: 180, // 180 seconds = 3 minutes
+        participant_left_timeout: 60, // 60 seconds = 1 minute
+        participant_absent_timeout: 300, // 300 seconds = 5 minutes
+        enable_closed_captions: true,
+        apply_greenscreen: false,
+        language: tavusLanguage
       }
     };
 
@@ -144,7 +151,7 @@ Deno.serve(async (req: Request) => {
     const tavusResponse = await fetch('https://tavusapi.com/v2/conversations', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('TAVUS_API_KEY')}`,
+        'x-api-key': `Bearer ${Deno.env.get('TAVUS_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(tavusRequest),
@@ -163,8 +170,8 @@ Deno.serve(async (req: Request) => {
       .insert({
         user_id,
         tavus_conversation_id: tavusData.conversation_id,
-        replica_id: userPersona.replica_id,
-        persona_id: userPersona.tavus_persona_id,
+        replica_id: REPLICA_ID,
+        persona_id: PERSONA_ID,
         session_type: 'face_to_face',
         status: 'active',
         start_time: new Date().toISOString(),
@@ -200,7 +207,7 @@ Deno.serve(async (req: Request) => {
         conversation_id: tavusData.conversation_id,
         mentor_conversation_id: mentorConversation.id,
         daily_session_id: dailySession.id,
-        persona_name: userPersona.name,
+        persona_name: 'Growth Mentor with Tools',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
