@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 .env
 supabase/.temp/
+.cursor/rules/project-management.mdc
