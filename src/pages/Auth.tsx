@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Mail, Phone, ChevronDown, Sparkles } from 'lucide-react';
+import { ChevronDown, Mail, Phone, Sparkles } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { AuthService } from '../lib/auth';
 
 type AuthMethod = 'email' | 'phone';
@@ -68,6 +70,8 @@ const BreathingLight = () => (
 );
 
 export const Auth: React.FC<AuthProps> = () => {
+  const navigate = useNavigate();
+  const { user, profile, loading, initialized } = useAuth();
   const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
   const [authAction, setAuthAction] = useState<AuthAction>('signin');
   const [usePassword, setUsePassword] = useState(true);
@@ -82,6 +86,18 @@ export const Auth: React.FC<AuthProps> = () => {
   const [error, setError] = useState('');
 
   const [success, setSuccess] = useState('');
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (initialized && !loading && user) {
+      const isOnboardingComplete = profile?.onboarding_completed || false;
+      if (isOnboardingComplete) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/onboarding', { replace: true });
+      }
+    }
+  }, [initialized, loading, user, profile, navigate]);
 
   // Reset to password authentication when auth method or action changes
   useEffect(() => {
@@ -107,7 +123,12 @@ export const Auth: React.FC<AuthProps> = () => {
           : await AuthService.signUpWithEmail(email, password);
           
         if (result.success) {
-          setSuccess(authAction === 'signin' ? 'Welcome back! Redirecting!' : 'Account created! Please confirm your email.');
+          if (authAction === 'signin') {
+            setSuccess('Welcome back! Redirecting!');
+            // Navigation will be handled by the useEffect above
+          } else {
+            setSuccess('Account created! Please confirm your email.');
+          }
         } else {
           setError(result.error || 'Authentication failed');
         }
@@ -162,7 +183,7 @@ export const Auth: React.FC<AuthProps> = () => {
       
       if (result.success) {
         setSuccess('Phone verified! Redirecting...');
-        // Navigation will be handled by the useAuth hook and useEffect above
+        // Navigation will be handled by the useEffect above
       } else {
         setError(result.error || 'Verification failed. Please try again.');
       }

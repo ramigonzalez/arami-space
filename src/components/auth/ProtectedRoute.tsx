@@ -39,14 +39,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Redirect to onboarding if required and not completed
-  if (requireOnboarding && !isOnboardingComplete) {
+  // Handle routing based on onboarding status and current path
+  if (location.pathname === '/dashboard' && !isOnboardingComplete) {
+    // User trying to access dashboard but hasn't completed onboarding
     return <Navigate to="/onboarding" replace />;
   }
 
-  // Redirect to dashboard if onboarding is complete but user is on onboarding page
   if (location.pathname === '/onboarding' && isOnboardingComplete) {
+    // User trying to access onboarding but has already completed it
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // Redirect to onboarding if required and not completed
+  if (requireOnboarding && !isOnboardingComplete) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;
