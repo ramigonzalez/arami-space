@@ -14,6 +14,7 @@ export class AuthService {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             full_name: email.split('@')[0], // Use email prefix as default name
           }

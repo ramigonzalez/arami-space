@@ -5,6 +5,34 @@ All notable changes to the Arami project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-01-30
+
+### Fixed
+
+- **CRITICAL**: New user confirmation redirect issue (Complete Fix)
+  - **Part 1**: Fixed AuthCallback component hardcoding redirect to /dashboard for all confirmed users
+  - **Part 2**: Fixed email signup missing emailRedirectTo configuration
+    - Added `emailRedirectTo: /auth/callback` to signUpWithEmail function
+    - Email confirmation links now properly redirect to callback route instead of root URL
+    - Ensures new users go through proper smart redirect logic based on onboarding status
+  - New users now properly redirect to /onboarding after email confirmation
+  - Existing users continue to redirect to /dashboard as expected
+  - Integrated useAuth hook for proper onboarding status checking
+  - Added proper state management to wait for auth initialization before redirecting
+
+### Improved
+
+- **New User Experience**: Seamless flow from email confirmation to onboarding
+- **Authentication Flow**: Better handling of post-confirmation redirects based on user state
+- **Smart Redirects**: Consistent redirect logic across all authentication entry points
+- **Configuration Consistency**: All auth methods now use same callback URL pattern
+
+### Technical
+
+- **AuthCallback Enhancement**: Added useAuth integration and conditional redirect logic
+- **State Management**: Proper handling of auth initialization timing in callback flow
+- **Auth Configuration**: Added missing emailRedirectTo option in email signup
+
 ## [0.4.1] - 2025-01-30
 
 ### Fixed

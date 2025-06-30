@@ -69,6 +69,24 @@
 
 ## Current Tasks (In Progress)
 
+### Phase 3: Onboarding Experience - Authentication Callback Fix ✅ **JUST COMPLETED**
+
+- **CRITICAL FIX**: Fixed new user confirmation redirect issue (Complete Fix)
+  - **Problem**: After email confirmation, new users were landing on root URL (/#) showing landing page while logged in
+  - **Root Causes**:
+    1. AuthCallback.tsx was hardcoded to redirect to /dashboard regardless of onboarding status
+    2. Email signup was missing emailRedirectTo configuration, causing Supabase to redirect to root instead of callback
+  - **Solution**: Two-part fix implemented:
+    - **Part 1**: Updated AuthCallback component to use smart redirect logic
+      - Integrated useAuth hook to access user profile and onboarding status
+      - Added proper state management to wait for auth initialization
+      - Implemented conditional redirect based on onboarding_completed flag
+    - **Part 2**: Fixed email signup configuration
+      - Added `emailRedirectTo: /auth/callback` to signUpWithEmail function
+      - Email confirmation links now properly redirect to callback route
+      - Ensures all auth methods use consistent callback URL pattern
+  - **Impact**: New users now have seamless flow from email confirmation → callback → onboarding
+
 ### Phase 3: Onboarding Experience - Voice Controls & Error Handling 🔄
 
 - **Primary Focus**: Voice controls optimization for mobile devices

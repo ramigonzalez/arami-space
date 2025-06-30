@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { AuthService } from '../lib/auth';
+import { supabase } from '../lib/supabase';
 
 const parseHashParams = (hash: string) => {
   // Remove leading # if present
@@ -13,12 +14,14 @@ const parseHashParams = (hash: string) => {
 const AuthCallback = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, profile, initialized, loading } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying magic link...');
   const [email, setEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
   const [resendError, setResendError] = useState('');
+  const [sessionSet, setSessionSet] = useState(false);
 
   useEffect(() => {
     // Supabase returns tokens in the hash fragment for magic link and signup
@@ -27,7 +30,7 @@ const AuthCallback = () => {
     const access_token = hashParams.access_token;
     const refresh_token = hashParams.refresh_token;
 
-    if (access_token && (type === 'magiclink' || type === 'signup')) {
+    if (access_token && (type === 'magiclink' || type === 'signup') && !sessionSet) {
       // Set the session using the tokens
       supabase.auth.setSession({
         access_token,
@@ -39,16 +42,32 @@ const AuthCallback = () => {
         } else {
           setStatus('success');
           setMessage(type === 'signup' ? 'Email confirmed! Redirecting...' : 'Magic link verified! Redirecting...');
-          setTimeout(() => {
-            navigate('/dashboard', { replace: true });
-          }, 1200);
+          setSessionSet(true);
+          // Don't redirect immediately - let the auth state update and then redirect based on onboarding status
         }
       });
-    } else {
+    } else if (!access_token || (type !== 'magiclink' && type !== 'signup')) {
       setStatus('error');
       setMessage('Invalid or expired link.');
     }
-  }, [location, navigate]);
+  }, [location, sessionSet]);
+
+  // Handle redirect after auth state is updated
+  useEffect(() => {
+    if (status === 'success' && sessionSet && initialized && !loading && user) {
+      console.log('AuthCallback - Redirecting user based on onboarding status:', {
+        hasProfile: !!profile,
+        onboardingComplete: profile?.onboarding_completed
+      });
+      
+      const isOnboardingComplete = profile?.onboarding_completed || false;
+      const redirectTo = isOnboardingComplete ? "/dashboard" : "/onboarding";
+      
+      setTimeout(() => {
+        navigate(redirectTo, { replace: true });
+      }, 1200);
+    }
+  }, [status, sessionSet, initialized, loading, user, profile, navigate]);
 
   const handleResend = async () => {
     setResendLoading(true);
