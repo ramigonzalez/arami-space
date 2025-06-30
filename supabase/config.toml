@@ -1,0 +1,28 @@
+# Supabase Configuration File
+# See: https://supabase.com/docs/guides/cli/config
+
+# API settings
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+# Database settings
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+# Functions settings
+[functions]
+# Disable JWT verification for webhook endpoints
+[functions.tavus-webhook]
+verify_jwt = false
+
+[functions.auth-magic-link]
+verify_jwt = false
+
+[functions.auth-phone]
+verify_jwt = false 
