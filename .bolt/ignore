@@ -1,7 +1,10 @@
 # ==== BOLT-ASSISTANT AUTO-GENERATED START ====
 # WARNING: This section is managed automatically by Bolt Assistant – any manual edits here will be overwritten.
+.bolt/assets/index-C4CxKFIf.css
+.bolt/assets/index-uSB3fvF6.js
 .bolt/config.json
 .bolt/ignore
+.bolt/index.html
 .bolt/prompt
 .env
 .gitignore
@@ -23,6 +26,7 @@ specs/project-plan.md
 specs/schemas.md
 src/App.tsx
 src/components/auth/ProtectedRoute.tsx
+src/components/debug/AuthDebug.tsx
 src/components/landing/CTA.tsx
 src/components/landing/Features.tsx
 src/components/landing/Footer.tsx
@@ -51,7 +55,6 @@ src/lib/elevenlabs.ts
 src/lib/supabase.ts
 src/main.tsx
 src/pages/Auth.tsx
-src/pages/AuthCallback.tsx
 src/pages/Dashboard.tsx
 src/pages/Landing.tsx
 src/pages/Onboarding.tsx
