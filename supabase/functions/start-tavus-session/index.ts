@@ -172,7 +172,7 @@ Deno.serve(async (req: Request) => {
         tavus_conversation_id: tavusData.conversation_id,
         replica_id: REPLICA_ID,
         persona_id: PERSONA_ID,
-        session_type: 'face_to_face',
+        session_type: 'extended',
         status: 'active',
         start_time: new Date().toISOString(),
       })

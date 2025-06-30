@@ -6,15 +6,35 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-interface TavusWebhookPayload {
-  conversation_id: string;
-  event_type: string;
-  transcript?: string;
-  recording_url?: string;
-  duration?: number;
-  participant_count?: number;
-  metadata?: any;
+interface TavusTranscriptMessage {
+  role: string;
+  content: string;
 }
+
+interface TavusTranscriptionPayload {
+  properties: {
+    replica_id: string;
+    transcript: TavusTranscriptMessage[];
+  };
+  conversation_id: string;
+  webhook_url: string;
+  event_type: 'application.transcription_ready';
+  message_type: 'application';
+  timestamp: string;
+}
+
+interface TavusPerceptionPayload {
+  properties: {
+    analysis: string;
+  };
+  conversation_id: string;
+  webhook_url: string;
+  event_type: 'application.perception_analysis';
+  message_type: 'application';
+  timestamp: string;
+}
+
+type TavusWebhookPayload = TavusTranscriptionPayload | TavusPerceptionPayload;
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -30,6 +50,15 @@ Deno.serve(async (req: Request) => {
     const payload: TavusWebhookPayload = await req.json();
     
     console.log('Received Tavus webhook:', JSON.stringify(payload, null, 2));
+
+    // Only process specific event types
+    if (!['application.transcription_ready', 'application.perception_analysis'].includes(payload.event_type)) {
+      console.log('Ignoring unhandled event type:', payload.event_type);
+      return new Response(
+        JSON.stringify({ success: true, message: 'Event type ignored' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!payload.conversation_id) {
       return new Response(
@@ -56,7 +85,7 @@ Deno.serve(async (req: Request) => {
     // Find the corresponding daily session
     const { data: dailySession, error: sessionFindError } = await supabaseClient
       .from('daily_sessions')
-      .select('id')
+      .select('id, session_metadata')
       .eq('user_id', mentorConversation.user_id)
       .eq('session_type', 'face_to_face')
       .eq('session_status', 'completed')
@@ -70,43 +99,52 @@ Deno.serve(async (req: Request) => {
     }
 
     // Process different event types
-    switch (payload.event_type) {
-      case 'conversation_ended':
-      case 'transcript_ready':
-        if (payload.transcript && dailySession) {
-          // Update daily session with transcript
-          const { error: updateError } = await supabaseClient
-            .from('daily_sessions')
-            .update({
-              conversation_transcript: payload.transcript,
-              session_metadata: {
-                recording_url: payload.recording_url,
-                participant_count: payload.participant_count,
-                tavus_metadata: payload.metadata,
-              },
-            })
-            .eq('id', dailySession.id);
+    if (payload.event_type === 'application.transcription_ready') {
+      if (payload.properties.transcript && dailySession) {
+        // Convert transcript array to a formatted string
+        const transcriptText = payload.properties.transcript
+          .map(msg => `${msg.role}: ${msg.content}`)
+          .join('\n\n');
 
-          if (updateError) {
-            console.error('Failed to update daily session:', updateError);
-          }
+        // Update daily session with transcript
+        const { error: updateError } = await supabaseClient
+          .from('daily_sessions')
+          .update({
+            conversation_transcript: transcriptText,
+            session_metadata: {
+              ...(dailySession.session_metadata || {}),
+              replica_id: payload.properties.replica_id,
+              transcript_timestamp: payload.timestamp,
+            },
+          })
+          .eq('id', dailySession.id);
+
+        if (updateError) {
+          console.error('Failed to update daily session with transcript:', updateError);
+        } else {
+          console.log('Successfully updated daily session with transcript');
         }
-        break;
+      }
+    } else if (payload.event_type === 'application.perception_analysis') {
+      if (payload.properties.analysis && dailySession) {
+        // Update daily session with perception analysis
+        const { error: updateError } = await supabaseClient
+          .from('daily_sessions')
+          .update({
+            session_metadata: {
+              ...(dailySession.session_metadata || {}),
+              perception_analysis: payload.properties.analysis,
+              analysis_timestamp: payload.timestamp,
+            },
+          })
+          .eq('id', dailySession.id);
 
-      case 'conversation_started':
-        // Update mentor conversation status if needed
-        const { error: statusError } = await supabaseClient
-          .from('mentor_conversations')
-          .update({ status: 'active' })
-          .eq('id', mentorConversation.id);
-
-        if (statusError) {
-          console.error('Failed to update conversation status:', statusError);
+        if (updateError) {
+          console.error('Failed to update daily session with perception analysis:', updateError);
+        } else {
+          console.log('Successfully updated daily session with perception analysis');
         }
-        break;
-
-      default:
-        console.log('Unhandled event type:', payload.event_type);
+      }
     }
 
     return new Response(
