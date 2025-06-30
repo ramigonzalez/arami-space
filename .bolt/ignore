@@ -11,16 +11,16 @@ index.html
 package-lock.json
 package.json
 postcss.config.js
-# specs/api-documentation.md
+specs/api-documentation.md
 specs/arami-design-system.md
 specs/backend.md
-# specs/changelog.md
-# specs/enhancements.md
+specs/changelog.md
+specs/enhancements.md
 specs/marketing-plan.md
-# specs/memory.md
+specs/memory.md
 specs/prd.md
-# specs/project-plan.md
-# specs/schemas.md
+specs/project-plan.md
+specs/schemas.md
 src/App.tsx
 src/components/auth/ProtectedRoute.tsx
 src/components/debug/AuthDebug.tsx
@@ -29,7 +29,7 @@ src/components/landing/Features.tsx
 src/components/landing/Footer.tsx
 src/components/landing/Hero.tsx
 src/components/landing/Testimonials.tsx
-# src/components/layout/Layout.tsx
+src/components/layout/Layout.tsx
 src/components/layout/Navigation.tsx
 src/components/onboarding/AIDrivenSteps.tsx
 src/components/onboarding/CongratulationsStep.tsx
@@ -50,14 +50,14 @@ src/index.css
 src/lib/auth.ts
 src/lib/database.ts
 src/lib/elevenlabs.ts
-src/lib/supabase.ts
+# src/lib/supabase.ts
 src/main.tsx
 src/pages/Auth.tsx
 src/pages/Dashboard.tsx
 src/pages/Goals.tsx
-# src/pages/Landing.tsx
+src/pages/Landing.tsx
 src/pages/Onboarding.tsx
-src/pages/Profile.tsx
+# src/pages/Profile.tsx
 src/pages/Sessions.tsx
 src/pages/Virtues.tsx
 src/types/onboarding.ts
