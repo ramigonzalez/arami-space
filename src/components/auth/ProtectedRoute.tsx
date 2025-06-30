@@ -11,8 +11,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireOnboarding = false 
 }) => {
-  const { isAuthenticated, isOnboardingComplete, loading, initialized } = useAuth();
+  const { user, profile, loading, initialized } = useAuth();
   const location = useLocation();
+
+  // Derive booleans locally
+  const isAuthenticated = !!user;
+  const isOnboardingComplete = profile?.onboarding_completed || false;
 
   // Show loading while auth is initializing
   if (!initialized || loading) {
