@@ -1,146 +1,68 @@
-import React, { useEffect } from 'react';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { AuthDebug } from './components/debug/AuthDebug';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { AuthProvider, useAuth } from './hooks/useAuth';
-import Auth from './pages/Auth';
-import { Dashboard } from './pages/Dashboard';
-import { Goals } from './pages/Goals';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { useAuth } from './hooks/useAuth';
+
+// Pages
 import { Landing } from './pages/Landing';
-import { Profile } from './pages/Profile';
+import { Auth } from './pages/Auth';
+import { Dashboard } from './pages/Dashboard';
 import { Sessions } from './pages/Sessions';
+import { FaceToFaceSessionPage } from './pages/FaceToFaceSessionPage';
+import { Goals } from './pages/Goals';
 import { Virtues } from './pages/Virtues';
-import Onboarding from './pages/Onboarding';
+import { Profile } from './pages/Profile';
+import { Onboarding } from './pages/Onboarding';
 
-// Main App Router Component
-const AppRouter: React.FC = () => {
-  const { user, profile, loading, initialized } = useAuth();
+function App() {
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const isAuthenticated = !!user;
-    const isOnboardingComplete = profile?.onboarding_completed || false;
-  
-    console.log("AppRouter - State Update:", {
-      initialized,
-      loading,
-      isAuthenticated,
-      isOnboardingComplete,
-      userId: user?.id,
-      profileData: profile
-    });
-
-  }, [initialized, loading, user, profile]) 
-
-  // Smart redirect component for catch-all route
-  const SmartRedirect = () => {
-    console.log("SmartRedirect - Evaluating redirect logic:", {
-      initialized,
-      loading,
-      hasUser: !!user,
-      userId: user?.id,
-      hasProfile: !!profile,
-      profileOnboardingComplete: profile?.onboarding_completed
-    });
-
-    if (!initialized || loading) {
-      console.log("SmartRedirect - Showing loading spinner");
-      return (
-        <div className="min-h-screen bg-arami-gradient flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-white/80">Loading your sanctuary...</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (!user) {
-      console.log("SmartRedirect - No user, redirecting to landing");
-      return <Navigate to="/" replace />;
-    }
-
-    // If user exists but profile is null, assume onboarding is not complete
-    // This handles cases where profile fetch might have failed or is still loading
-    const isOnboardingComplete = profile?.onboarding_completed || false;
-    const redirectTo = isOnboardingComplete ? "/dashboard" : "/onboarding";
-    console.log("SmartRedirect - User found, redirecting to:", redirectTo, {
-      hasProfile: !!profile,
-      onboardingComplete: isOnboardingComplete
-    });
-    return <Navigate to={redirectTo} replace />;
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
 
   return (
-    <Layout>
+    <Router>
       <Routes>
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/goals"
-          element={
-            <ProtectedRoute>
-              <Goals />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sessions"
-          element={
-            <ProtectedRoute>
-              <Sessions />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/virtues"
-          element={
-            <ProtectedRoute>
-              <Virtues />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/onboarding"
-          element={
-            <ProtectedRoute>
-              <Onboarding />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/" element={<Landing />} />
-        <Route path="*" element={<SmartRedirect />} />
+        {/* Public routes */}
+        <Route path="/" element={!user ? <Landing /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/auth" element={!user ? <Auth /> : <Navigate to="/dashboard" replace />} />
+        
+        {/* Protected routes */}
+        <Route path="/onboarding" element={
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/face-to-face-session" element={
+          <ProtectedRoute>
+            <FaceToFaceSessionPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <Layout>
+              <Routes>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/sessions" element={<Sessions />} />
+                <Route path="/goals" element={<Goals />} />
+                <Route path="/virtues" element={<Virtues />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        } />
       </Routes>
-      <AuthDebug />
-    </Layout>
+    </Router>
   );
-};
+}
 
-const App: React.FC = () => {
-  console.log('App render - initializing');
-  return (
-    <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppRouter />
-      </Router>
-    </AuthProvider>
-  );
-};
-
-export { App };
 export default App;
