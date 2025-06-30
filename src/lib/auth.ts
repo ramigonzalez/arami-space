@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { DatabaseService } from './database';
 
 export interface AuthResponse {
   success: boolean;
@@ -205,6 +204,7 @@ export class AuthService {
   }
 
   static onAuthStateChange(callback: (event: string, session: any) => void) {
+    console.log("[AuthService] onAuthStateChange")
     return supabase.auth.onAuthStateChange(callback);
   }
 

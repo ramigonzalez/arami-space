@@ -13,7 +13,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, profile, loading, initialized } = useAuth();
   const location = useLocation();
-  console.log("ProtectedRoute - location", location)
 
   // Derive booleans locally
   const isAuthenticated = !!user;
