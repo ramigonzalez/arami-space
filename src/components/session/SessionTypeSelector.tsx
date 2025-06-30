@@ -1,290 +1,192 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Video, Mic, FileText, Headphones } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
-import { 
-  Video, 
-  Mic, 
-  PenTool, 
-  Heart, 
-  Clock,
-  Star,
-  ChevronRight,
-  User
-} from 'lucide-react';
-import { sessionService } from '../../lib/sessionService';
+import { Card } from '../ui/Card';
 import { useAuth } from '../../hooks/useAuth';
+import { SessionService } from '../../lib/sessionService';
 
 interface SessionType {
   id: string;
-  name: string;
+  title: string;
   description: string;
   icon: React.ReactNode;
   duration: string;
-  isPremium: boolean;
-  isAvailable: boolean;
+  available: boolean;
 }
 
-interface Persona {
-  id: string;
-  name: string;
-  specialization: string;
-  is_active: boolean;
-  replica_id: string;
-  mentor_avatars: {
-    name: string;
-    description: string;
-    thumbnail_url: string;
-    is_premium: boolean;
-  };
-}
+const sessionTypes: SessionType[] = [
+  {
+    id: 'face_to_face',
+    title: 'Face-to-Face',
+    description: 'Interactive video conversation with your AI mentor',
+    icon: <Video className="w-6 h-6" />,
+    duration: '10-15 min',
+    available: true
+  },
+  {
+    id: 'spoken_presence',
+    title: 'Spoken Presence',
+    description: 'Voice-only conversation for deeper focus',
+    icon: <Mic className="w-6 h-6" />,
+    duration: '8-12 min',
+    available: false
+  },
+  {
+    id: 'silent_reflection',
+    title: 'Silent Reflection',
+    description: 'Guided meditation and mindfulness practice',
+    icon: <Headphones className="w-6 h-6" />,
+    duration: '5-10 min',
+    available: false
+  },
+  {
+    id: 'written_clarity',
+    title: 'Written Clarity',
+    description: 'Text-based journaling and reflection',
+    icon: <FileText className="w-6 h-6" />,
+    duration: '10-20 min',
+    available: false
+  }
+];
 
-interface SessionTypeSelectorProps {
-  onSessionStart: (sessionType: string, personaId?: string) => void;
-  isLoading?: boolean;
-}
-
-export const SessionTypeSelector: React.FC<SessionTypeSelectorProps> = ({
-  onSessionStart,
-  isLoading = false,
-}) => {
-  const { user } = useAuth();
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [personas, setPersonas] = useState<Persona[]>([]);
-  const [loadingPersonas, setLoadingPersonas] = useState(false);
+export const SessionTypeSelector: React.FC = () => {
+  const [selectedType, setSelectedType] = useState<string>('face_to_face');
+  const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const sessionTypes: SessionType[] = [
-    {
-      id: 'face_to_face',
-      name: 'Face-to-Face',
-      description: 'Video conversation with your AI mentor',
-      icon: <Video className="w-6 h-6" />,
-      duration: '15-30 min',
-      isPremium: false,
-      isAvailable: true,
-    },
-    {
-      id: 'spoken_presence',
-      name: 'Spoken Presence',
-      description: 'Audio-only conversation for deeper focus',
-      icon: <Mic className="w-6 h-6" />,
-      duration: '10-20 min',
-      isPremium: false,
-      isAvailable: false, // Not implemented yet
-    },
-    {
-      id: 'silent_reflection',
-      name: 'Silent Reflection',
-      description: 'Guided meditation and mindfulness',
-      icon: <Heart className="w-6 h-6" />,
-      duration: '5-15 min',
-      isPremium: false,
-      isAvailable: false, // Not implemented yet
-    },
-    {
-      id: 'written_clarity',
-      name: 'Written Clarity',
-      description: 'Text-based journaling and insights',
-      icon: <PenTool className="w-6 h-6" />,
-      duration: '10-25 min',
-      isPremium: true,
-      isAvailable: false, // Not implemented yet
-    },
-  ];
-
-  useEffect(() => {
-    if (selectedType === 'face_to_face' && user?.id) {
-      loadPersonas();
-    }
-  }, [selectedType, user?.id]);
-
-  const loadPersonas = async () => {
-    if (!user?.id) return;
-
-    try {
-      setLoadingPersonas(true);
-      setError(null);
-      const userPersonas = await sessionService.getUserPersonas(user.id);
-      setPersonas(userPersonas);
-    } catch (err) {
-      setError('Failed to load available mentors');
-      console.error('Error loading personas:', err);
-    } finally {
-      setLoadingPersonas(false);
-    }
-  };
-
-  const handleTypeSelect = (typeId: string) => {
-    const sessionType = sessionTypes.find(t => t.id === typeId);
-    
-    if (!sessionType?.isAvailable) {
+  const handleStartSession = async () => {
+    if (!user) {
+      setError('Please log in to start a session');
       return;
     }
 
-    if (typeId === 'face_to_face') {
-      setSelectedType(typeId);
-    } else {
-      // For other session types, start immediately
-      onSessionStart(typeId);
+    if (selectedType !== 'face_to_face') {
+      setError('Only Face-to-Face sessions are currently available');
+      return;
+    }
+
+    setIsStarting(true);
+    setError(null);
+
+    try {
+      console.log('Starting session for user:', user.id);
+      const result = await SessionService.startFaceToFaceSession(user.id);
+      
+      if (result.success && result.conversationId) {
+        console.log('Session started successfully, navigating to session page');
+        // Navigate to the face-to-face session page with session data
+        navigate('/session/face-to-face', {
+          state: {
+            conversationId: result.conversationId,
+            replicaId: result.replicaId,
+            personaId: result.personaId,
+            conversationUrl: result.conversationUrl
+          }
+        });
+      } else {
+        setError(result.error || 'Failed to start session');
+      }
+    } catch (error) {
+      console.error('Error starting session:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsStarting(false);
     }
   };
 
-  const handlePersonaSelect = (personaId: string) => {
-    onSessionStart('face_to_face', personaId);
-  };
-
-  const handleBack = () => {
-    setSelectedType(null);
-    setError(null);
-  };
-
-  if (selectedType === 'face_to_face') {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={handleBack}>
-            ← Back
-          </Button>
-          <div>
-            <h3 className="text-lg font-semibold text-surface-900">Choose Your Mentor</h3>
-            <p className="text-sm text-surface-600">Select an AI mentor for your face-to-face session</p>
-          </div>
-        </div>
-
-        {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {loadingPersonas ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-surface-600">Loading mentors...</p>
-          </div>
-        ) : personas.length === 0 ? (
-          <Card className="p-6 text-center">
-            <div className="w-12 h-12 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-6 h-6 text-surface-600" />
-            </div>
-            <h4 className="font-semibold text-surface-900 mb-2">No Mentors Available</h4>
-            <p className="text-surface-600 mb-4">
-              You don't have any AI mentors set up yet. Complete your onboarding to get personalized mentors.
-            </p>
-            <Button variant="outline" onClick={handleBack}>
-              Go Back
-            </Button>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {personas.map((persona) => (
-              <Card 
-                key={persona.id} 
-                className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => handlePersonaSelect(persona.id)}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-100">
-                    {persona.mentor_avatars.thumbnail_url ? (
-                      <img 
-                        src={persona.mentor_avatars.thumbnail_url} 
-                        alt={persona.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                        <span className="text-white font-semibold">
-                          {persona.name.charAt(0)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-surface-900">{persona.name}</h4>
-                      {persona.mentor_avatars.is_premium && (
-                        <Badge variant="primary" size="sm">
-                          <Star className="w-3 h-3 mr-1" />
-                          Premium
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-surface-600 mb-1">
-                      {persona.mentor_avatars.description}
-                    </p>
-                    <p className="text-xs text-surface-500 capitalize">
-                      Specialization: {persona.specialization.replace('_', ' ')}
-                    </p>
-                  </div>
-                  
-                  <ChevronRight className="w-5 h-5 text-surface-400" />
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-surface-900 mb-2">Choose Your Session Type</h3>
-        <p className="text-surface-600">Select how you'd like to connect with your AI mentor today</p>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Choose Your Session Type
+        </h1>
+        <p className="text-lg text-gray-600">
+          Select how you'd like to connect with your AI mentor today
+        </p>
       </div>
 
-      <div className="grid gap-4">
-        {sessionTypes.map((sessionType) => (
-          <Card 
-            key={sessionType.id}
-            className={`p-4 transition-all cursor-pointer ${
-              sessionType.isAvailable 
-                ? 'hover:shadow-md hover:border-primary-200' 
-                : 'opacity-60 cursor-not-allowed'
-            } ${isLoading ? 'pointer-events-none' : ''}`}
-            onClick={() => handleTypeSelect(sessionType.id)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {sessionTypes.map((type) => (
+          <Card
+            key={type.id}
+            className={`p-6 cursor-pointer transition-all duration-200 ${
+              selectedType === type.id
+                ? 'ring-2 ring-indigo-500 bg-indigo-50'
+                : 'hover:shadow-lg'
+            } ${
+              !type.available
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
+            }`}
+            onClick={() => type.available && setSelectedType(type.id)}
           >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                sessionType.isAvailable 
-                  ? 'bg-primary-100 text-primary-600' 
-                  : 'bg-surface-100 text-surface-400'
+            <div className="flex items-start space-x-4">
+              <div className={`p-3 rounded-lg ${
+                selectedType === type.id
+                  ? 'bg-indigo-100 text-indigo-600'
+                  : 'bg-gray-100 text-gray-600'
               }`}>
-                {sessionType.icon}
+                {type.icon}
               </div>
-              
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold text-surface-900">{sessionType.name}</h4>
-                  {sessionType.isPremium && (
-                    <Badge variant="primary" size="sm">
-                      <Star className="w-3 h-3 mr-1" />
-                      Premium
-                    </Badge>
-                  )}
-                  {!sessionType.isAvailable && (
-                    <Badge variant="secondary" size="sm">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {type.title}
+                  </h3>
+                  {!type.available && (
+                    <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
                       Coming Soon
-                    </Badge>
+                    </span>
                   )}
                 </div>
-                <p className="text-sm text-surface-600 mb-2">{sessionType.description}</p>
-                <div className="flex items-center gap-1 text-xs text-surface-500">
-                  <Clock className="w-3 h-3" />
-                  {sessionType.duration}
+                <p className="text-gray-600 mb-3">
+                  {type.description}
+                </p>
+                <div className="text-sm text-gray-500">
+                  Duration: {type.duration}
                 </div>
               </div>
-              
-              {sessionType.isAvailable && (
-                <ChevronRight className="w-5 h-5 text-surface-400" />
-              )}
             </div>
           </Card>
         ))}
       </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+
+      <div className="text-center">
+        <Button
+          onClick={handleStartSession}
+          disabled={isStarting || !sessionTypes.find(t => t.id === selectedType)?.available}
+          className="px-8 py-3 text-lg"
+        >
+          {isStarting ? 'Starting Session...' : 'Begin Session'}
+        </Button>
+      </div>
+
+      {selectedType && (
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold text-blue-900 mb-2">
+            What to expect:
+          </h4>
+          <ul className="text-blue-800 text-sm space-y-1">
+            {selectedType === 'face_to_face' && (
+              <>
+                <li>• Interactive video conversation with your AI mentor</li>
+                <li>• Personalized guidance based on your profile and goals</li>
+                <li>• Real-time emotional support and insights</li>
+                <li>• Session summary and virtue rewards</li>
+              </>
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
