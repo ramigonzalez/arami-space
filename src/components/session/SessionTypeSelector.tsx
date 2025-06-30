@@ -1,10 +1,10 @@
+import { FileText, Headphones, Mic, Video } from 'lucide-react';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Video, Mic, FileText, Headphones } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
 import { useAuth } from '../../hooks/useAuth';
 import { SessionService } from '../../lib/sessionService';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
 
 interface SessionType {
   id: string;
@@ -58,12 +58,20 @@ export const SessionTypeSelector: React.FC = () => {
   const navigate = useNavigate();
 
   const handleStartSession = async () => {
+    console.log('=== SESSION START DEBUG ===');
+    console.log('1. Handle start session called');
+    console.log('2. User object:', user);
+    console.log('3. User ID:', user?.id);
+    console.log('4. Selected type:', selectedType);
+    
     if (!user) {
+      console.log('❌ No user found');
       setError('Please log in to start a session');
       return;
     }
 
     if (selectedType !== 'face_to_face') {
+      console.log('❌ Invalid session type selected');
       setError('Only Face-to-Face sessions are currently available');
       return;
     }
@@ -72,28 +80,60 @@ export const SessionTypeSelector: React.FC = () => {
     setError(null);
 
     try {
-      console.log('Starting session for user:', user.id);
-      const result = await SessionService.startFaceToFaceSession(user.id);
+      console.log('5. About to call SessionService.startFaceToFaceSession...');
+      console.log('6. Current auth state:', { 
+        hasUser: !!user, 
+        userId: user.id,
+        hasSession: !!user.id // Check if we have session data
+      });
+
+      // Skip redundant getSession call - we already have valid user from useAuth
+      console.log('7. Skipping getSession call - using existing user object');
+      console.log('8. User has valid session:', !!user?.id);
+      console.log('9. User email:', user?.email);
+
+      console.log('10. About to call SessionService function...');
+      console.log('11. SessionService object:', SessionService);
+      console.log('12. startFaceToFaceSession method:', SessionService.startFaceToFaceSession);
+
+      let result;
+      try {
+        console.log('13. Calling SessionService.startFaceToFaceSession...');
+        result = await SessionService.startFaceToFaceSession(user.id);
+        console.log('14. SessionService call completed with result:', result);
+      } catch (serviceError) {
+        console.error('❌ Error in SessionService call:', serviceError);
+        const error = serviceError as Error;
+        console.error('ServiceError details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+        throw serviceError; // Re-throw to be caught by outer try-catch
+      }
       
       if (result.success && result.conversationId) {
-        console.log('Session started successfully, navigating to session page');
+        console.log('✅ Session started successfully, navigating to session page');
         // Navigate to the face-to-face session page with session data
         navigate('/session/face-to-face', {
           state: {
             conversationId: result.conversationId,
-            replicaId: result.replicaId,
-            personaId: result.personaId,
-            conversationUrl: result.conversationUrl
+            conversationUrl: result.conversationUrl,
+            mentorConversationId: result.mentorConversationId,
+            dailySessionId: result.dailySessionId,
+            personaName: result.personaName
           }
         });
       } else {
+        console.log('❌ Session start failed:', result.error);
         setError(result.error || 'Failed to start session');
       }
     } catch (error) {
-      console.error('Error starting session:', error);
+      console.error('❌ Unexpected error starting session:', error);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsStarting(false);
+      console.log('=== SESSION START DEBUG END ===');
     }
   };
 

@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Use refs to prevent race conditions and duplicate fetches
   const mountedRef = useRef(true);
   const initializationPromiseRef = useRef<Promise<void> | null>(null);
+  const initializedRef = useRef(false);
   const profileCacheRef = useRef<{ [userId: string]: any }>({});
   const activeProfileFetchRef = useRef<{ [userId: string]: Promise<any> }>({});
 
@@ -113,35 +114,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(null);
       }
 
-      console.log('[useAuth] Auth initialization complete');
-      setLoading(false);
-      setInitialized(true);
-    } catch (error) {
-      console.error('[useAuth] Error initializing auth:', error);
-      if (mountedRef.current) {
-        setLoading(false);
-        setInitialized(true);
-      }
-    }
+             console.log('[useAuth] Auth initialization complete');
+       setLoading(false);
+       setInitialized(true);
+       initializedRef.current = true;
+         } catch (error) {
+       console.error('[useAuth] Error initializing auth:', error);
+       if (mountedRef.current) {
+         setLoading(false);
+         setInitialized(true);
+         initializedRef.current = true;
+       }
+     }
   };
 
   useEffect(() => {
     mountedRef.current = true;
+    initializedRef.current = false;
 
     // Prevent duplicate initialization (especially important for StrictMode)
     if (!initializationPromiseRef.current) {
       initializationPromiseRef.current = initializeAuth();
     }
 
+    // Fallback timeout to ensure auth never gets stuck permanently
+    const fallbackTimeout = setTimeout(() => {
+      if (mountedRef.current && !initializedRef.current) {
+        console.log('[useAuth] Fallback timeout triggered, forcing initialization');
+        setLoading(false);
+        setInitialized(true);
+        initializedRef.current = true;
+      }
+    }, 10000); // 10 second fallback
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('[useAuth] onAuthStateChange fired:', { event, session });
-        if (!mountedRef.current) return;
-        
-        // Wait for initial auth to complete before handling state changes
-        await initializationPromiseRef.current;
-        
         if (!mountedRef.current) return;
 
         setSession(session);
@@ -156,11 +165,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Clear all cached profiles when user signs out
           profileCacheRef.current = {};
         }
+
+        // Ensure auth is marked as initialized after any auth state change
+        if (!initializedRef.current) {
+          console.log('[useAuth] Marking auth as initialized after state change');
+          setLoading(false);
+          setInitialized(true);
+          initializedRef.current = true;
+        }
       }
     );
 
     return () => {
       mountedRef.current = false;
+      clearTimeout(fallbackTimeout);
       subscription.unsubscribe();
     };
   }, []); // Empty dependency array to prevent re-initialization

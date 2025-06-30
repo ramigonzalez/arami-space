@@ -34,13 +34,4 @@ export interface UserEmotionalCategory {
   created_at: string;
 }
 
-// Test the connection and log the result
-supabase.auth.getSession().then(({ data, error }) => {
-  if (error) {
-    console.error('[Supabase] Connection test failed:', error);
-  } else {
-    console.log('[Supabase] Connection test successful. Session:', data.session ? 'Found existing session' : 'No existing session');
-  }
-}).catch((error) => {
-  console.error('[Supabase] Connection test error:', error);
-});
+// Connection test removed to prevent interference

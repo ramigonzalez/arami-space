@@ -1,11 +1,10 @@
 import { supabase } from './supabase';
-import { Database } from './database';
 
 export interface SessionContext {
   userId: string;
   discType?: string;
   enneagramType?: number;
-  personalityInsights?: any;
+  personalityInsights?: Record<string, unknown>;
   goals?: Array<{
     goal_text: string;
     goal_type: string;
@@ -25,7 +24,7 @@ export interface SessionContext {
   recentSessions?: Array<{
     session_type: string;
     virtue_earned?: string;
-    key_insights?: any;
+    key_insights?: Record<string, unknown>;
   }>;
 }
 
@@ -35,6 +34,9 @@ export interface StartSessionResponse {
   replicaId?: string;
   personaId?: string;
   conversationUrl?: string;
+  mentorConversationId?: string;
+  dailySessionId?: string;
+  personaName?: string;
   error?: string;
 }
 
@@ -46,48 +48,76 @@ export interface EndSessionResponse {
 export class SessionService {
   static async startFaceToFaceSession(userId: string): Promise<StartSessionResponse> {
     try {
-      console.log('Starting face-to-face session for user:', userId);
+      console.log('=== SESSION SERVICE DEBUG ===');
+      console.log('SessionService.startFaceToFaceSession called with userId:', userId);
+
+      // Skip session check since we already have valid userId from authenticated user
+      console.log('✅ Valid userId provided, proceeding with function call...');
 
       // Call the start-tavus-session edge function
+      console.log('📞 Calling supabase.functions.invoke with:', {
+        functionName: 'start-tavus-session',
+        body: { user_id: userId }
+      });
+
       const { data, error } = await supabase.functions.invoke('start-tavus-session', {
         body: {
-          user_id:userId
+          user_id: userId
         }
       });
 
+      console.log('📞 Function invoke response:', { data, error });
+
       if (error) {
-        console.error('Error starting Tavus session:', error);
+        console.error('❌ Error from edge function:', error);
+        console.error('Error details:', {
+          message: error.message,
+          status: error.status,
+          statusText: error.statusText
+        });
         return {
           success: false,
           error: error.message || 'Failed to start session'
         };
       }
 
-      console.log('Tavus session started successfully:', data);
+      console.log('✅ Edge function call successful, data received:', data);
       
       return {
         success: true,
-        conversationId: data.conversationId,
-        replicaId: data.replicaId,
-        personaId: data.personaId,
-        conversationUrl: data.conversationUrl
+        conversationId: data.conversation_id,
+        conversationUrl: data.conversation_url,
+        mentorConversationId: data.mentor_conversation_id,
+        dailySessionId: data.daily_session_id,
+        personaName: data.persona_name
       };
     } catch (error) {
-      console.error('Unexpected error starting session:', error);
+      console.error('❌ Unexpected error in SessionService:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack available');
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
+    } finally {
+      console.log('=== SESSION SERVICE DEBUG END ===');
     }
   }
 
-  static async endSession(conversationId: string): Promise<EndSessionResponse> {
+  static async endSession(
+    conversationId: string, 
+    mentorConversationId: string, 
+    dailySessionId: string, 
+    userId: string
+  ): Promise<EndSessionResponse> {
     try {
       console.log('Ending session:', conversationId);
       
       const { data, error } = await supabase.functions.invoke('end-tavus-session', {
         body: {
-          conversationId
+          tavus_conversation_id: conversationId,
+          mentor_conversation_id: mentorConversationId,
+          daily_session_id: dailySessionId,
+          user_id: userId
         }
       });
 
@@ -115,8 +145,8 @@ export class SessionService {
 
   private static async gatherUserContext(userId: string): Promise<SessionContext> {
     try {
-      // Get user profile
-      const { data: profile } = await supabase
+      // Get user profile (not currently used but available for future context)
+      await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
